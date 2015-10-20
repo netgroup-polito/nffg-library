@@ -8,4 +8,4 @@ The NF-FG is similar to the one proposed in the UNIFY project, but:
 This NF-FG model is structured with the following main sections:
   * A list of VNFs
   * A list of Endpoints
-  * A "big-switch" to create the interconnections between components (list of flow-rules)
+  * A "big-switch" to create the interconnections between components (list of flow-rules and actions, similar to OpenFlow 1.0)
