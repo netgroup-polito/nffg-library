@@ -240,14 +240,14 @@ Create a graph with end-points and VNFs.
             "port_in": "vnf:00000001:WAN:0"
           },
           "action": {
-            "output": "endpoint:00000001"
+            "output": "endpoint:00000002"
           }
         },
         {
           "id": "000000004",
           "priority": 1,
           "match": {
-            "port_in": "endpoint:00000001"
+            "port_in": "endpoint:00000002"
           },
           "action": {
             "output": "vnf:00000001:WAN:0"
