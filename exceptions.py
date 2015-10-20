@@ -21,3 +21,12 @@ class WrongNumberOfPorts(Exception):
     
     def get_mess(self):
         return self.message
+    
+class    NF_FGValidationError(Exception):
+    def __init__(self, message):
+        self.message = message
+        # Call the base class constructor with the parameters it needs
+        super(NF_FGValidationError, self).__init__(message)
+    
+    def get_mess(self):
+        return self.message

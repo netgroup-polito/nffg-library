@@ -102,8 +102,10 @@ class NF_FG(object):
     def getFlowRuleSendingTrafficToNode(self, node_id):
         flow_rules = []
         for flow_rule in self.flow_rules:
-            if flow_rule.action.output == node_id:
-                flow_rules.append(flow_rule)
+            for action in flow_rule.actions:
+                if action.output == node_id:
+                    flow_rules.append(flow_rule)
+                    continue
         return flow_rules
     
     def getFlowRuleSendingTrafficFromNode(self, node_id):
@@ -183,7 +185,7 @@ class NF_FG(object):
         for outgoing_flow_rule in outgoing_flow_rules:
             for ingoing_flow_rule in ingoing_flow_rules:
                 final_matches = self.mergeMatches(outgoing_flow_rule.matches, ingoing_flow_rule.matches)
-                flowrules.append(FlowRule(uuid.uuid4().hex,ingoing_flow_rule.action, matches = final_matches))
+                flowrules.append(FlowRule(uuid.uuid4().hex,ingoing_flow_rule.actions, matches = final_matches))
         return flowrules    
     
     def mergeMatches(self, first_matches, second_matches):
@@ -216,6 +218,7 @@ class NF_FG(object):
                 final_matches.append(match)
                 
         return final_matches
+    
 class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = [],
@@ -308,13 +311,16 @@ class VNF(object):
         
     def deleteIncomingFlowrule(self, node_id):
         for flow_rule in self.flow_rules[:]:
-            if flow_rule.match.port_in == node_id and flow_rule.action.output == self.id:
-                self.flow_rules.remove(flow_rule)
+            for action in flow_rule.actions:
+                if flow_rule.match.port_in == node_id and action.output == self.id:
+                    self.flow_rules.remove(flow_rule)
+                    continue
     
     def deletOutcomingFlowrule(self, node_id):
         for flow_rule in self.flow_rules[:]:
-            if flow_rule.match.port_in == self.id and flow_rule.action.output == node_id:
-                self.flow_rules.remove(flow_rule)
+            for action in flow_rule.actions:
+                if flow_rule.match.port_in == self.id and action.output == node_id:
+                    self.flow_rules.remove(flow_rule)
     
     def getHigherReletiveIDForPortLabel(self, label):
         max_relative_id = 0
@@ -392,17 +398,18 @@ class EndPoint(object):
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
-                 match = None, action = None):
+                 match = None, actions = []):
         self.id = _id
         self.priority = priority
         self.match = match
-        self.action = action
+        self.actions = actions
     
     def parseDict(self, flow_rule_dict):
         self.id = flow_rule_dict['id']
         self.priority = flow_rule_dict['priority']
         self.match = Match().parseDict(flow_rule_dict['match'])
-        self.action = Action().parseDict(flow_rule_dict['action'])
+        for action_dict in flow_rule_dict['actions']:
+            self.actions.append(Action().parseDict(action_dict))
         
     def getDict(self):
         flow_rule_dict = {}
@@ -412,8 +419,10 @@ class FlowRule(object):
             flow_rule_dict['priority'] = self.priority
         if self.match is not None:
             flow_rule_dict['match'] = self.match.getDict()
-        if self.action is not None:
-            flow_rule_dict['action'] = self.action.getDict()
+        actions = []
+        for action in self.actions:
+            actions.append(action.getDict())
+        flow_rule_dict['actions'] = actions
         return flow_rule_dict
           
     def changeIngressPortOfFlowRule(self, old_port_id, new_port_id):
@@ -423,7 +432,7 @@ class FlowRule(object):
         return None
     
 class Match(object):
-    def __init__(self, port_in=None, hard_timeout = None, 
+    def __init__(self, port_in=None, 
                  ether_type = None, vlan_id = None, 
                  vlan_priority = None, source_mac = None,
                  dest_mac = None, source_ip = None,
@@ -452,7 +461,6 @@ class Match(object):
         '''
         
         self.port_in = port_in
-        self.hard_timeout = hard_timeout
         self.ether_type = ether_type
         self.vlan_id = vlan_id
         self.vlan_priority = vlan_priority
@@ -467,7 +475,6 @@ class Match(object):
     
     def parseDict(self, match_dict):
         self.port_in = match_dict['port_in']
-        self.hard_timeout = match_dict['hard_timeout']
         self.ether_type = match_dict['ether_type']
         self.vlan_id = match_dict['vlan_id']
         self.vlan_priority = match_dict['vlan_priority']
@@ -484,8 +491,6 @@ class Match(object):
         match_dict = {}
         if self.port_in is not None:
             match_dict['port_in'] = self.port_in  
-        if self.hard_timeout is not None:
-            match_dict['hard_timeout'] = self.hard_timeout
         if self.ether_type is not None:
             match_dict['ether_type'] = self.ether_type  
         if self.vlan_id is not None:
@@ -511,7 +516,7 @@ class Match(object):
         return match_dict
 
 class Action(object):
-    def __init__(self, output = None, set_vlan_id = None,
+    def __init__(self, output = None, controller = False, set_vlan_id = None,
                  set_vlan_priority = None, pop_vlan = None,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
@@ -534,6 +539,7 @@ class Action(object):
         OFPAT_ENQUEUE, /* Output to queue. */
         '''
         self.output = output
+        self.controller = controller # TODO: to be added
         self.set_vlan_id = set_vlan_id
         self.set_vlan_priority = set_vlan_priority
         self.pop_vlan = pop_vlan
