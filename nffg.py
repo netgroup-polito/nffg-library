@@ -3,7 +3,7 @@ Created on Oct 14, 2015
 
 @author: fabiomignini
 '''
-import sys, uuid
+import sys, uuid, json
 from exceptions import InexistentLabelFound, WrongNumberOfPorts
 from validator import ValidateNF_FG
 
@@ -49,7 +49,10 @@ class NF_FG(object):
         if flow_rules_dict:
             nffg_dict['flow-rules'] = flow_rules_dict
         return nffg_dict
-        
+    
+    def getJSON(self):
+        return json.dumps(self.getDict()) 
+    
     def addVNF(self, vnf):
         if type(vnf) is VNF:
             self.vnfs.append(vnf)
