@@ -1,6 +1,6 @@
 # NF-FG Library
 
-This library models the NF-FG used by the frog-orchestrator
+This library models the NF-FG used by the frog-orchestrator.
 The NF-FG is similar to the one proposed in the UNIFY project, but:
   * it captures only the communication from a component to its underlying counterpart, e.g., from an orchestrator to a compute node (downstream communication flow)
   * it looks a little bit more human readable.

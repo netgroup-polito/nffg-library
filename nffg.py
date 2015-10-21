@@ -222,16 +222,86 @@ class NF_FG(object):
                 
         return final_matches
     
+    def diff (self, nffg_new):
+        nffg = NF_FG()
+        nffg.id = nffg_new.id
+        nffg.name = nffg_new.name
+        
+        nffg.vnfs = nffg_new.vnfs
+        nffg.end_points = nffg_new.end_points
+        for new_vnf in nffg_new.vnfs:
+            new_vnf.status = 'new'   
+        for old_vnf in self.vnfs:
+            vnf_found = False
+            for new_vnf in nffg_new.vnfs:
+                if old_vnf.id == new_vnf.id and old_vnf.name == new_vnf.name and old_vnf.template == new_vnf.template:
+                    new_vnf.status = 'already_deployed'
+                    new_vnf.db_id = old_vnf.db_id
+                    new_vnf.internal_id = old_vnf.internal_id
+                    # check ports
+                    
+                    for new_port in new_vnf.ports:
+                        new_port.status = 'new'
+                    for old_port in old_vnf.ports:
+                        port_found = False
+                        for new_port in new_vnf.ports:
+                            if old_port.id == new_port.id:
+                                new_port.status = 'already_deployed'
+                                new_port.db_id = old_port.db_id
+                                new_port.internal_id = old_port.internal_id
+                                
+                                port_found = True
+                                break
+                        if port_found is False:
+                            old_port.status = 'to_be_deleted'
+                            new_vnf.ports.append(old_port)
+                    vnf_found = True
+                    break
+            if vnf_found is False:
+                old_vnf.status = 'to_be_deleted'
+                nffg.vnfs.append(old_vnf)
+        
+        for new_endpoint in nffg_new.end_points:
+            new_endpoint.status = 'new'
+        for old_endpoint in self.end_points:
+            endpoint_found = False
+            for new_endpoint in nffg_new.end_points:
+                if old_endpoint.id == new_endpoint.id:
+                    new_endpoint.status = 'already_deployed'
+                    new_endpoint.db_id = old_endpoint.db_id
+                    endpoint_found = True
+                    break
+            if endpoint_found is False:
+                old_endpoint.status = 'to_be_deleted'
+                nffg.end_points.append(old_endpoint)
+                
+                
+                
+                
+        return nffg
+                                
+
+
+
+
+
+        
+        
+    
 class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = [],
-                groups = [], template = None):
+                groups = [], template = None, status = None,
+                db_id = None, internal_id = None):
         self.id = _id
         self.name = name
         self.vnf_template_location = vnf_template_location
         self.template = template
         self.ports = ports
         self.groups = groups
+        self.status = status
+        self.db_id = db_id
+        self.internal_id = internal_id
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
@@ -241,7 +311,7 @@ class VNF(object):
             self.ports.append(Port().parseDict(port_dict))
         self.groups = vnf_dict['groups']
         
-    def getDict(self):
+    def getDict(self, extended = False):
         vnf_dict = {}
         if self.id is not None:
             vnf_dict['id'] = self.id 
@@ -256,6 +326,13 @@ class VNF(object):
             vnf_dict['ports'] = ports_dict
         if self.groups is not None:
             vnf_dict['groups'] = self.groups
+        if extended is True:
+            if self.status is not None:
+                vnf_dict['status'] = self.status 
+            if self.db_id is not None:
+                vnf_dict['db_id'] = self.db_id
+            if self.internal_id is not None:
+                vnf_dict['internal_id'] = self.internal_id
         return vnf_dict
     
     def addPort(self, port):
@@ -334,26 +411,41 @@ class VNF(object):
         return max_relative_id
         
 class Port(object):
-    def __init__(self, _id = None, name = None):
+    def __init__(self, _id = None, name = None, type = None, status = None, db_id = None, internal_id = None):
         self.id = _id
         self.name = name
+        self.type = type
+        self.status = status
+        self.db_id = db_id
+        self.internal_id = internal_id
         
     def parseDict(self, port_dict):
         self.id = port_dict['id']
         self.name = port_dict['name']
+        self.type = port_dict['type']
         
-    def getDict(self):
+    def getDict(self, extended = False):
         port_dict = {}
         if self.id is not None:
             port_dict['id'] = self.id
         if self.name is not None:
             port_dict['name'] = self.name
+        if self.type is not None:
+            port_dict['type'] = self.type
+        if extended is True:
+            if self.status is not None:
+                port_dict['status'] = self.status 
+            if self.db_id is not None:
+                port_dict['db_id'] = self.db_id
+            if self.internal_id is not None:
+                port_dict['internal_id'] = self.internal_id            
         return port_dict
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
                  remote_endpoint_id = None, node = None, switch_id = None,
-                 interface = None, remote_ip = None, local_ip = None, ttl = None):
+                 interface = None, remote_ip = None, local_ip = None, ttl = None,
+                 status = None, db_id = None, internal_id = None):
         '''
         Parameters
         ----------
@@ -390,6 +482,9 @@ class EndPoint(object):
         self.remote_ip = remote_ip
         self.local_ip = local_ip
         self.ttl = ttl
+        self.status = status
+        self.db_id = db_id
+        self.internal_id = internal_id
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -401,11 +496,15 @@ class EndPoint(object):
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
-                 match = None, actions = []):
+                 match = None, actions = [], status = None,
+                 db_id = None, internal_id = None):
         self.id = _id
         self.priority = priority
         self.match = match
         self.actions = actions
+        self.status = status
+        self.db_id = db_id
+        self.internal_id = internal_id
     
     def parseDict(self, flow_rule_dict):
         self.id = flow_rule_dict['id']
@@ -414,7 +513,7 @@ class FlowRule(object):
         for action_dict in flow_rule_dict['actions']:
             self.actions.append(Action().parseDict(action_dict))
         
-    def getDict(self):
+    def getDict(self, extended = False):
         flow_rule_dict = {}
         if self.id is not None:
             flow_rule_dict['id'] = self.id
@@ -426,6 +525,13 @@ class FlowRule(object):
         for action in self.actions:
             actions.append(action.getDict())
         flow_rule_dict['actions'] = actions
+        if extended is True:
+            if self.status is not None:
+                flow_rule_dict['status'] = self.status 
+            if self.db_id is not None:
+                flow_rule_dict['db_id'] = self.db_id
+            if self.internal_id is not None:
+                flow_rule_dict['internal_id'] = self.internal_id            
         return flow_rule_dict
           
     def changeIngressPortOfFlowRule(self, old_port_id, new_port_id):
@@ -435,13 +541,13 @@ class FlowRule(object):
         return None
     
 class Match(object):
-    def __init__(self, port_in=None, 
+    def __init__(self, port_in_type = None, port_in=None, 
                  ether_type = None, vlan_id = None, 
                  vlan_priority = None, source_mac = None,
                  dest_mac = None, source_ip = None,
                  dest_ip = None, tos_bits = None,
                  source_port = None, dest_port = None,
-                 protocol = None):
+                 protocol = None, db_id = None):
         '''
         It contains all the openflow 1.0 match types.
         
@@ -462,7 +568,7 @@ class Match(object):
         uint16_t tp_src; /* TCP/UDP source port. */
         uint16_t tp_dst; /* TCP/UDP destination port. */
         '''
-        
+        self.port_in_type = port_in_type
         self.port_in = port_in
         self.ether_type = ether_type
         self.vlan_id = vlan_id
@@ -475,6 +581,7 @@ class Match(object):
         self.source_port = source_port
         self.dest_port = dest_port
         self.protocol = protocol
+        self.db_id = db_id
     
     def parseDict(self, match_dict):
         self.port_in = match_dict['port_in']
@@ -490,8 +597,10 @@ class Match(object):
         self.dest_port = match_dict['dest_port']
         self.protocol = match_dict['protocol']
         
-    def getDict(self):
+    def getDict(self, extended = False):
         match_dict = {}
+        if self.port_in_type is not None:
+            match_dict['port_in_type'] = self.port_in_type  
         if self.port_in is not None:
             match_dict['port_in'] = self.port_in  
         if self.ether_type is not None:
@@ -516,15 +625,18 @@ class Match(object):
             match_dict['dest_port'] = self.dest_port
         if self.protocol is not None:
             match_dict['protocol'] = self.protocol
+        if extended is True:
+            if self.db_id is not None:
+                match_dict['db_id'] = self.db_id
         return match_dict
 
 class Action(object):
-    def __init__(self, output = None, controller = False, set_vlan_id = None,
+    def __init__(self, output_type = None, output = None, controller = False, set_vlan_id = None,
                  set_vlan_priority = None, pop_vlan = None,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
                  set_ip_tos = None, set_l4_src_port=None,
-                 set_l4_dst_port = None, output_to_queue= None):
+                 set_l4_dst_port = None, output_to_queue= None, db_id = None):
         '''
         It contains all the openflow 1.0 action types.
         
@@ -541,6 +653,7 @@ class Action(object):
         OFPAT_SET_TP_DST, /* TCP/UDP destination port. */
         OFPAT_ENQUEUE, /* Output to queue. */
         '''
+        self.output_type = output_type
         self.output = output
         self.controller = controller # TODO: to be added
         self.set_vlan_id = set_vlan_id
@@ -554,6 +667,7 @@ class Action(object):
         self.set_l4_src_port = set_l4_src_port
         self.set_l4_dst_port = set_l4_dst_port
         self.output_to_queue = output_to_queue
+        self.db_id = db_id
         
     def parseDict(self, action_dict):
         self.output = action_dict['output']
@@ -569,8 +683,10 @@ class Action(object):
         self.set_l4_dst_port = action_dict['set_l4_dst_port']
         self.output_to_queue = action_dict['output_to_queue'] 
     
-    def getDict(self):
+    def getDict(self, extended = False):
         action_dict = {}
+        if self.output_type is not None:
+            action_dict['output_type'] = self.output_type         
         if self.output is not None:
             action_dict['output'] = self.output  
         if self.set_vlan_id is not None:
@@ -595,5 +711,8 @@ class Action(object):
             action_dict['set_l4_dst_port'] = self.set_l4_dst_port  
         if self.output_to_queue is not None:
             action_dict['output_to_queue'] = self.output_to_queue
+        if extended is True:
+            if self.db_id is not None:
+                action_dict['db_id'] = self.db_id            
         return action_dict
         
