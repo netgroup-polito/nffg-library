@@ -13,41 +13,54 @@ class NF_FG(object):
                  flow_rules = []):
         self.id = _id
         self.name = name
-        self.vnfs = vnfs
-        self.end_points = end_points
-        self.flow_rules = flow_rules
+        self.vnfs = vnfs or []
+        self.end_points = end_points or []
+        self.flow_rules = flow_rules or []
     
     def parseDict(self, nffg_dict):
         self.id = nffg_dict['forwarding-graph']['id']
-        self.name = nffg_dict['forwarding-graph']['name']
-        for vnf_dict in nffg_dict['forwarding-graph']['VNFs']: 
-            self.vnfs.append(VNF().parseDict(vnf_dict))
-        for end_point_dict in nffg_dict['forwarding-graph']['end-ponts']:
-            self.end_points.append(EndPoint().parseDict(end_point_dict))
-        for flow_rule_dict in nffg_dict['forwarding-graph']['flow-rules']:
-            self.flow_rules.append(FlowRule().parseDict(flow_rule_dict))
+        if 'name' in nffg_dict['forwarding-graph']:
+            self.name = nffg_dict['forwarding-graph']['name']
+        if 'VNFs' in nffg_dict['forwarding-graph']:
+            for vnf_dict in nffg_dict['forwarding-graph']['VNFs']:
+                vnf = VNF()
+                vnf.parseDict(vnf_dict)
+                self.vnfs.append(vnf)
+        if 'end-points' in nffg_dict['forwarding-graph']:
+            for end_point_dict in nffg_dict['forwarding-graph']['end-points']:
+                endpoint = EndPoint()
+                endpoint.parseDict(end_point_dict)
+                self.end_points.append(endpoint)
+        if 'big-switch' in nffg_dict['forwarding-graph']:
+            if 'flow-rules' in nffg_dict['forwarding-graph']['big-switch']:
+                for flow_rule_dict in nffg_dict['forwarding-graph']['big-switch']['flow-rules']:
+                    flow_rule = FlowRule(None)
+                    flow_rule.parseDict(flow_rule_dict)
+                    self.flow_rules.append(flow_rule)
     
-    def getDict(self):
+    def getDict(self, extended = False):
         nffg_dict = {}
+        nffg_dict['forwarding-graph'] = {}
         if self.id is not None:
-            nffg_dict['id'] = self.id 
+            nffg_dict['forwarding-graph']['id'] = self.id 
         if self.name is not None:
-            nffg_dict['name'] = self.name
+            nffg_dict['forwarding-graph']['name'] = self.name
         vnfs_dict = []
         for vnf in self.vnfs:
-            vnfs_dict.append(vnf.getDict())
+            vnfs_dict.append(vnf.getDict(extended))
         if vnfs_dict:
-            nffg_dict['VNFs'] = vnfs_dict
+            nffg_dict['forwarding-graph']['VNFs'] = vnfs_dict
         end_points_dict = []
         for end_point in self.end_points:
-            end_points_dict.append(end_point.getDict())
+            end_points_dict.append(end_point.getDict(extended))
         if end_points_dict:
-            nffg_dict['end-points'] = end_points_dict
+            nffg_dict['forwarding-graph']['end-points'] = end_points_dict
         flow_rules_dict = []
         for flow_rule in self.flow_rules:
-            flow_rules_dict.append(flow_rule.getDict())
+            flow_rules_dict.append(flow_rule.getDict(extended))
         if flow_rules_dict:
-            nffg_dict['flow-rules'] = flow_rules_dict
+            nffg_dict['forwarding-graph']['big-switch'] = {}
+            nffg_dict['forwarding-graph']['big-switch']['flow-rules'] = flow_rules_dict
         return nffg_dict
     
     def getJSON(self):
@@ -229,6 +242,9 @@ class NF_FG(object):
         
         nffg.vnfs = nffg_new.vnfs
         nffg.end_points = nffg_new.end_points
+        nffg.flow_rules = nffg_new.flow_rules 
+        
+        #VNFs
         for new_vnf in nffg_new.vnfs:
             new_vnf.status = 'new'   
         for old_vnf in self.vnfs:
@@ -260,7 +276,7 @@ class NF_FG(object):
             if vnf_found is False:
                 old_vnf.status = 'to_be_deleted'
                 nffg.vnfs.append(old_vnf)
-        
+        #Endpoints
         for new_endpoint in nffg_new.end_points:
             new_endpoint.status = 'new'
         for old_endpoint in self.end_points:
@@ -274,20 +290,25 @@ class NF_FG(object):
             if endpoint_found is False:
                 old_endpoint.status = 'to_be_deleted'
                 nffg.end_points.append(old_endpoint)
-                
-                
-                
-                
+        
+        #Flowrules
+        for new_flowrule in nffg.flow_rules:
+            new_flowrule.status = 'new'
+        for old_flowrule in self.flow_rules:
+            flowrule_found = False
+            for new_flowrule in nffg.flow_rules:
+                if old_flowrule.getDict() == new_flowrule.getDict():
+                    new_flowrule.status = 'already_deployed'
+                    new_flowrule.db_id = old_flowrule.db_id
+                    new_flowrule.internal_id = old_flowrule.internal_id
+                    flowrule_found = True
+                    break
+            if flowrule_found is False:
+                old_flowrule.status = 'to_be_deleted'
+                nffg.flow_rules.append(old_flowrule)
+        
         return nffg
                                 
-
-
-
-
-
-        
-        
-    
 class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = [],
@@ -297,19 +318,24 @@ class VNF(object):
         self.name = name
         self.vnf_template_location = vnf_template_location
         self.template = template
-        self.ports = ports
-        self.groups = groups
+        self.ports = ports or []
+        self.groups = groups or []
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
-        self.name = vnf_dict['name']
-        self.vnf_template_location = vnf_dict['vnf_template']
+        if 'name' in vnf_dict:
+            self.name = vnf_dict['name']
+        if 'vnf_template' in vnf_dict:
+            self.vnf_template_location = vnf_dict['vnf_template']
         for port_dict in vnf_dict['ports']:
-            self.ports.append(Port().parseDict(port_dict))
-        self.groups = vnf_dict['groups']
+            port = Port()
+            port.parseDict(port_dict)
+            self.ports.append(port)
+        if 'groups' in vnf_dict:
+            self.groups = vnf_dict['groups']
         
     def getDict(self, extended = False):
         vnf_dict = {}
@@ -421,8 +447,8 @@ class Port(object):
         
     def parseDict(self, port_dict):
         self.id = port_dict['id']
-        self.name = port_dict['name']
-        self.type = port_dict['type']
+        if 'name' in port_dict:
+            self.name = port_dict['name']
         
     def getDict(self, extended = False):
         port_dict = {}
@@ -430,9 +456,9 @@ class Port(object):
             port_dict['id'] = self.id
         if self.name is not None:
             port_dict['name'] = self.name
-        if self.type is not None:
-            port_dict['type'] = self.type
         if extended is True:
+            if self.type is not None:
+                port_dict['type'] = self.type
             if self.status is not None:
                 port_dict['status'] = self.status 
             if self.db_id is not None:
@@ -445,7 +471,7 @@ class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
                  remote_endpoint_id = None, node = None, switch_id = None,
                  interface = None, remote_ip = None, local_ip = None, ttl = None,
-                 status = None, db_id = None, internal_id = None):
+                 status = None, db_id = None, internal_id = None, vlan_id = None):
         '''
         Parameters
         ----------
@@ -482,26 +508,83 @@ class EndPoint(object):
         self.remote_ip = remote_ip
         self.local_ip = local_ip
         self.ttl = ttl
+        self.vlan_id = vlan_id
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
-        self.name = end_point_dict['name']
-        self.type = end_point_dict['type']
+        if 'name' in end_point_dict:
+            self.name = end_point_dict['name']
+        if 'remote_endpoint_id' in end_point_dict:
+            self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
+        if 'type' in end_point_dict:
+            self.type = end_point_dict['type']
+            if self.type == 'interface' or self.type == 'interface-out':
+                self.interface = end_point_dict[self.type]['interface']
+                if 'node' in end_point_dict[self.type]:
+                    self.node = end_point_dict[self.type]['node']
+                if 'switch_id' in end_point_dict[self.type]:
+                    self.switch_id = end_point_dict[self.type]['switch_id']
+            elif self.type == 'gre-tunnel':
+                self.remote_ip = end_point_dict[self.type]['remote_ip']
+                self.local_ip = end_point_dict[self.type]['local_ip']
+                self.interface = end_point_dict[self.type]['interface']
+                if 'ttl' in end_point_dict[self.type]:
+                    self.ttl = end_point_dict[self.type]['ttl']   
+            elif self.type == 'vlan-id':
+                self.interface = end_point_dict[self.type]['interface']
+                self.vlan_id = end_point_dict[self.type]['vlan-id']
+                if 'node' in end_point_dict[self.type]:
+                    self.node = end_point_dict[self.type]['node']
+                if 'switch_id' in end_point_dict[self.type]:
+                    self.switch_id = end_point_dict[self.type]['switch_id']
+         
     
-    def getDict(self):
-        pass
+    def getDict(self, extended = False):
+        end_point_dict = {}
+        if self.id is not None:
+            end_point_dict['id'] = self.id
+        if self.name is not None:
+            end_point_dict['name'] = self.name
+        if self.remote_endpoint_id is not None:
+            end_point_dict['remote_endpoint_id'] = self.remote_endpoint_id  
+        if self.type is not None:
+            end_point_dict['type'] = self.type
+            if self.type != 'internal':
+                end_point_dict[self.type] = {}
+        if self.node is not None:
+            end_point_dict[self.type]['node'] = self.node
+        if self.switch_id is not None:
+            end_point_dict[self.type]['switch_id'] = self.switch_id     
+        if self.interface is not None:
+            end_point_dict[self.type]['interface'] = self.interface
+        if self.remote_ip is not None:
+            end_point_dict[self.type]['remote_ip'] = self.remote_ip  
+        if self.local_ip is not None:
+            end_point_dict[self.type]['local_ip'] = self.local_ip     
+        if self.ttl is not None:
+            end_point_dict[self.type]['ttl'] = self.ttl
+        if self.vlan_id is not None:
+            end_point_dict[self.type]['vlan_id'] = self.vlan_id             
+        if extended is True:
+            if self.status is not None:
+                end_point_dict['status'] = self.status 
+            if self.db_id is not None:
+                end_point_dict['db_id'] = self.db_id
+            if self.internal_id is not None:
+                end_point_dict['internal_id'] = self.internal_id
+        return end_point_dict   
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
-                 match = None, actions = [], status = None,
+                 match = None, actions = None, status = None,
                  db_id = None, internal_id = None):
         self.id = _id
         self.priority = priority
         self.match = match
-        self.actions = actions
+        self.actions = actions or []
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
@@ -509,9 +592,13 @@ class FlowRule(object):
     def parseDict(self, flow_rule_dict):
         self.id = flow_rule_dict['id']
         self.priority = flow_rule_dict['priority']
-        self.match = Match().parseDict(flow_rule_dict['match'])
+        match = Match()
+        match.parseDict(flow_rule_dict['match'])
+        self.match = match
         for action_dict in flow_rule_dict['actions']:
-            self.actions.append(Action().parseDict(action_dict))
+            action = Action()
+            action.parseDict(action_dict)
+            self.actions.append(action)
         
     def getDict(self, extended = False):
         flow_rule_dict = {}
@@ -541,7 +628,7 @@ class FlowRule(object):
         return None
     
 class Match(object):
-    def __init__(self, port_in_type = None, port_in=None, 
+    def __init__(self, port_in=None, 
                  ether_type = None, vlan_id = None, 
                  vlan_priority = None, source_mac = None,
                  dest_mac = None, source_ip = None,
@@ -568,7 +655,6 @@ class Match(object):
         uint16_t tp_src; /* TCP/UDP source port. */
         uint16_t tp_dst; /* TCP/UDP destination port. */
         '''
-        self.port_in_type = port_in_type
         self.port_in = port_in
         self.ether_type = ether_type
         self.vlan_id = vlan_id
@@ -584,23 +670,34 @@ class Match(object):
         self.db_id = db_id
     
     def parseDict(self, match_dict):
-        self.port_in = match_dict['port_in']
-        self.ether_type = match_dict['ether_type']
-        self.vlan_id = match_dict['vlan_id']
-        self.vlan_priority = match_dict['vlan_priority']
-        self.source_mac = match_dict['source_mac']
-        self.dest_mac = match_dict['dest_mac']
-        self.source_ip = match_dict['source_ip']
-        self.dest_ip = match_dict['dest_ip']
-        self.tos_bits = match_dict['tos_bits']
-        self.source_port = match_dict['source_port']
-        self.dest_port = match_dict['dest_port']
-        self.protocol = match_dict['protocol']
+        if 'port_in' in match_dict:
+            self.port_in = match_dict['port_in']
+        if 'ether_type' in match_dict:
+            self.ether_type = match_dict['ether_type']
+        if 'vlan_id' in match_dict:
+            self.vlan_id = match_dict['vlan_id']
+        if 'vlan_priority' in match_dict:
+            self.vlan_priority = match_dict['vlan_priority']       
+        if 'source_mac' in match_dict:
+            self.source_mac = match_dict['source_mac']
+        if 'dest_mac' in match_dict:
+            self.dest_mac = match_dict['dest_mac']
+        if 'source_ip' in match_dict:
+            self.source_ip = match_dict['source_ip']
+        if 'dest_ip' in match_dict:
+            self.dest_ip = match_dict['dest_ip']  
+        if 'tos_bits' in match_dict:
+            self.tos_bits = match_dict['tos_bits']
+        if 'source_port' in match_dict:
+            self.source_port = match_dict['source_port']
+        if 'dest_port' in match_dict:
+            self.dest_port = match_dict['dest_port']
+        if 'protocol' in match_dict:
+            self.protocol = match_dict['protocol']                                                
+
         
     def getDict(self, extended = False):
-        match_dict = {}
-        if self.port_in_type is not None:
-            match_dict['port_in_type'] = self.port_in_type  
+        match_dict = {} 
         if self.port_in is not None:
             match_dict['port_in'] = self.port_in  
         if self.ether_type is not None:
@@ -631,7 +728,7 @@ class Match(object):
         return match_dict
 
 class Action(object):
-    def __init__(self, output_type = None, output = None, controller = False, set_vlan_id = None,
+    def __init__(self, output = None, controller = False, set_vlan_id = None,
                  set_vlan_priority = None, pop_vlan = None,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
@@ -653,7 +750,6 @@ class Action(object):
         OFPAT_SET_TP_DST, /* TCP/UDP destination port. */
         OFPAT_ENQUEUE, /* Output to queue. */
         '''
-        self.output_type = output_type
         self.output = output
         self.controller = controller # TODO: to be added
         self.set_vlan_id = set_vlan_id
@@ -670,23 +766,33 @@ class Action(object):
         self.db_id = db_id
         
     def parseDict(self, action_dict):
-        self.output = action_dict['output']
-        self.set_vlan_id = action_dict['set_vlan_id']
-        self.set_vlan_priority = action_dict['set_vlan_priority']
-        self.pop_vlan = action_dict['pop_vlan']
-        self.set_ethernet_src_address = action_dict['set_ethernet_src_address']
-        self.set_ethernet_dst_address = action_dict['set_ethernet_dst_address']
-        self.set_ip_src_address = action_dict['set_ip_src_address']
-        self.set_ip_dst_address = action_dict['set_ip_dst_address']
-        self.set_ip_tos = action_dict['set_ip_tos']
-        self.set_l4_src_port = action_dict['set_l4_src_port']
-        self.set_l4_dst_port = action_dict['set_l4_dst_port']
-        self.output_to_queue = action_dict['output_to_queue'] 
+        if 'output' in action_dict:
+            self.output = action_dict['output']
+        if 'set_vlan_id' in action_dict:
+            self.set_vlan_id = action_dict['set_vlan_id']
+        if 'set_vlan_priority' in action_dict:
+            self.set_vlan_priority = action_dict['set_vlan_priority']
+        if 'pop_vlan' in action_dict:
+            self.pop_vlan = action_dict['pop_vlan']         
+        if 'set_ethernet_src_address' in action_dict:
+            self.set_ethernet_src_address = action_dict['set_ethernet_src_address']
+        if 'set_ethernet_dst_address' in action_dict:
+            self.set_ethernet_dst_address = action_dict['set_ethernet_dst_address']
+        if 'set_ip_src_address' in action_dict:
+            self.set_ip_src_address = action_dict['set_ip_src_address']
+        if 'set_ip_dst_address' in action_dict:
+            self.set_ip_dst_address = action_dict['set_ip_dst_address']  
+        if 'set_ip_tos' in action_dict:
+            self.set_ip_tos = action_dict['set_ip_tos']
+        if 'set_l4_src_port' in action_dict:
+            self.set_l4_src_port = action_dict['set_l4_src_port']
+        if 'set_l4_dst_port' in action_dict:
+            self.set_l4_dst_port = action_dict['set_l4_dst_port']
+        if 'output_to_queue' in action_dict:
+            self.output_to_queue = action_dict['output_to_queue']                              
     
     def getDict(self, extended = False):
-        action_dict = {}
-        if self.output_type is not None:
-            action_dict['output_type'] = self.output_type         
+        action_dict = {}      
         if self.output is not None:
             action_dict['output'] = self.output  
         if self.set_vlan_id is not None:
