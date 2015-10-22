@@ -452,10 +452,10 @@ class VNF(object):
         return max_relative_id
         
 class Port(object):
-    def __init__(self, _id = None, name = None, type = None, status = None, db_id = None, internal_id = None):
+    def __init__(self, _id = None, name = None, _type = None, status = None, db_id = None, internal_id = None):
         self.id = _id
         self.name = name
-        self.type = type
+        self.type = _type
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
@@ -594,12 +594,12 @@ class EndPoint(object):
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
-                 match = None, actions = None, status = None,
+                 match = None, actions = [], status = None,
                  db_id = None, internal_id = None):
         self.id = _id
         self.priority = priority
         self.match = match
-        self.actions = actions or []
+        self.actions = actions
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
