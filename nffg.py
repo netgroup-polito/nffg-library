@@ -66,7 +66,7 @@ class NF_FG(object):
     def getJSON(self):
         return json.dumps(self.getDict()) 
     
-    def getVFN(self, vnf_id):
+    def getVNF(self, vnf_id):
         for vnf in self.vnfs:
             if vnf.id == vnf_id:
                 return vnf
