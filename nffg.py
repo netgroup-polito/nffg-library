@@ -66,6 +66,16 @@ class NF_FG(object):
     def getJSON(self):
         return json.dumps(self.getDict()) 
     
+    def getVFN(self, vnf_id):
+        for vnf in self.vnfs:
+            if vnf.id == vnf_id:
+                return vnf
+    
+    def getEndPoint(self, end_point_id):
+        for end_point in self.end_points:
+            if end_point.id == end_point_id:
+                return end_point
+    
     def addVNF(self, vnf):
         if type(vnf) is VNF:
             self.vnfs.append(vnf)
@@ -360,6 +370,11 @@ class VNF(object):
             if self.internal_id is not None:
                 vnf_dict['internal_id'] = self.internal_id
         return vnf_dict
+    
+    def getPort(self, port_id):
+        for port in self.ports:
+            if port.id == port_id:
+                return port
     
     def addPort(self, port):
         if type(port) is Port:
