@@ -71,6 +71,11 @@ class NF_FG(object):
             if vnf.id == vnf_id:
                 return vnf
     
+    def getVNFByDBID(self, vnf_db_id):
+        for vnf in self.vnfs:
+            if vnf.db_id == vnf_db_id:
+                return vnf
+    
     def getEndPoint(self, end_point_id):
         for end_point in self.end_points:
             if end_point.id == end_point_id:
