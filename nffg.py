@@ -9,7 +9,7 @@ from validator import ValidateNF_FG
 
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
-                 vnfs = [], end_points = [],
+                 vnfs = None, end_points = None,
                  flow_rules = []):
         self.id = _id
         self.name = name
@@ -321,7 +321,7 @@ class NF_FG(object):
                                 
 class VNF(object):
     def __init__(self, _id = None, name = None,
-                vnf_template_location = None, ports = [],
+                vnf_template_location = None, ports = None,
                 groups = [], template = None, status = None,
                 db_id = None, internal_id = None):
         self.id = _id
@@ -594,12 +594,12 @@ class EndPoint(object):
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
-                 match = None, actions = [], status = None,
+                 match = None, actions = None, status = None,
                  db_id = None, internal_id = None):
         self.id = _id
         self.priority = priority
         self.match = match
-        self.actions = actions
+        self.actions = actions or []
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
