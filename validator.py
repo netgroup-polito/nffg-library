@@ -7,7 +7,7 @@ import logging
 
 from json_hyper_schema import Schema, ValidationError
 
-from exceptions import NF_FGValidationError
+from exception import NF_FGValidationError
 
 class ValidateNF_FG(object):
     '''

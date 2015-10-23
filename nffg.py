@@ -4,13 +4,13 @@ Created on Oct 14, 2015
 @author: fabiomignini
 '''
 import sys, uuid, json
-from exceptions import InexistentLabelFound, WrongNumberOfPorts
+from exception import InexistentLabelFound, WrongNumberOfPorts
 from validator import ValidateNF_FG
 
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
                  vnfs = None, end_points = None,
-                 flow_rules = []):
+                 flow_rules = None):
         self.id = _id
         self.name = name
         self.vnfs = vnfs or []
@@ -327,7 +327,7 @@ class NF_FG(object):
 class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = None,
-                groups = [], template = None, status = None,
+                groups = None, template = None, status = None,
                 db_id = None, internal_id = None):
         self.id = _id
         self.name = name
@@ -561,7 +561,6 @@ class EndPoint(object):
                 if 'switch_id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch_id']
          
-    
     def getDict(self, extended = False):
         end_point_dict = {}
         if self.id is not None:
@@ -574,20 +573,20 @@ class EndPoint(object):
             end_point_dict['type'] = self.type
             if self.type != 'internal':
                 end_point_dict[self.type] = {}
-        if self.node is not None:
-            end_point_dict[self.type]['node'] = self.node
-        if self.switch_id is not None:
-            end_point_dict[self.type]['switch_id'] = self.switch_id     
-        if self.interface is not None:
-            end_point_dict[self.type]['interface'] = self.interface
-        if self.remote_ip is not None:
-            end_point_dict[self.type]['remote_ip'] = self.remote_ip  
-        if self.local_ip is not None:
-            end_point_dict[self.type]['local_ip'] = self.local_ip     
-        if self.ttl is not None:
-            end_point_dict[self.type]['ttl'] = self.ttl
-        if self.vlan_id is not None:
-            end_point_dict[self.type]['vlan_id'] = self.vlan_id             
+                if self.node is not None:
+                    end_point_dict[self.type]['node'] = self.node
+                if self.switch_id is not None:
+                    end_point_dict[self.type]['switch_id'] = self.switch_id     
+                if self.interface is not None:
+                    end_point_dict[self.type]['interface'] = self.interface
+                if self.remote_ip is not None:
+                    end_point_dict[self.type]['remote_ip'] = self.remote_ip  
+                if self.local_ip is not None:
+                    end_point_dict[self.type]['local_ip'] = self.local_ip     
+                if self.ttl is not None:
+                    end_point_dict[self.type]['ttl'] = self.ttl
+                if self.vlan_id is not None:
+                    end_point_dict[self.type]['vlan_id'] = self.vlan_id             
         if extended is True:
             if self.status is not None:
                 end_point_dict['status'] = self.status 
