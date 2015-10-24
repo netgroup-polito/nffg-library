@@ -34,7 +34,7 @@ class NF_FG(object):
         if 'big-switch' in nffg_dict['forwarding-graph']:
             if 'flow-rules' in nffg_dict['forwarding-graph']['big-switch']:
                 for flow_rule_dict in nffg_dict['forwarding-graph']['big-switch']['flow-rules']:
-                    flow_rule = FlowRule(None)
+                    flow_rule = FlowRule()
                     flow_rule.parseDict(flow_rule_dict)
                     self.flow_rules.append(flow_rule)
     
