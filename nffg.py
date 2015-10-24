@@ -405,7 +405,8 @@ class VNF(object):
                 if label == template_port.label:
                     if template_port.position.split('-')[1] == 'N' or template_port.position.split('-')[1] == 'n':
                         maximum_number_of_ports_per_label = sys.maxint
-                    maximum_number_of_ports_per_label = int(template_port.position.split('-')[0]) - int(template_port.position.split('-')[0]) + 1
+                    else:
+                        maximum_number_of_ports_per_label = int(template_port.position.split('-')[0]) - int(template_port.position.split('-')[1]) + 1
                     minimum_number_of_ports_per_label = template_port.min
                     found = True
                     
