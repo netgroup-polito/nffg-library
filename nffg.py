@@ -3,7 +3,7 @@ Created on Oct 14, 2015
 
 @author: fabiomignini
 '''
-import sys, uuid, json
+import sys, uuid, json, copy
 from exception import InexistentLabelFound, WrongNumberOfPorts
 from validator import ValidateNF_FG
 
@@ -427,10 +427,10 @@ class VNF(object):
             pass
     
     def deleteAllConnections(self):
-        pass
+        raise NotImplementedError()
     
     def deleteConnectionsToVNF(self, vnf_id):
-        pass
+        raise NotImplementedError()
     
     def deleteConnections(self, node_id):
         self.deleteIncomingFlowrule(self, node_id)
@@ -597,6 +597,21 @@ class EndPoint(object):
                 end_point_dict['internal_id'] = self.internal_id
         return end_point_dict   
 
+    def deleteAllConnections(self):
+        deleted_flows = []
+        for flow_rule in self.flow_rules[:]:
+            for action in flow_rule.actions:
+                if action.output == "endpoint:"+self.id:
+                    deleted_flows.append(copy.deepcopy(flow_rule))
+                    self.flow_rules.remove(flow_rule)
+                    continue
+        for flow_rule in self.flow_rules[:]:
+            for action in flow_rule.actions:
+                if flow_rule.match.port_in == "endpoint:"+self.id:
+                    deleted_flows.append(copy.deepcopy(flow_rule))
+                    self.flow_rules.remove(flow_rule)        
+        return deleted_flows
+
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
                  match = None, actions = None, status = None,
@@ -748,7 +763,7 @@ class Match(object):
         return match_dict
 
 class Action(object):
-    def __init__(self, output = None, controller = False, set_vlan_id = None,
+    def __init__(self, output = None, controller = False, drop=False, set_vlan_id = None,
                  set_vlan_priority = None, pop_vlan = None,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
@@ -771,7 +786,8 @@ class Action(object):
         OFPAT_ENQUEUE, /* Output to queue. */
         '''
         self.output = output
-        self.controller = controller # TODO: to be added
+        self.controller = controller
+        self.drop = drop
         self.set_vlan_id = set_vlan_id
         self.set_vlan_priority = set_vlan_priority
         self.pop_vlan = pop_vlan
@@ -788,6 +804,10 @@ class Action(object):
     def parseDict(self, action_dict):
         if 'output' in action_dict:
             self.output = action_dict['output']
+        if 'controller' in action_dict:
+            self.controller = action_dict['controller']
+        if 'drop' in action_dict:
+            self.controller = action_dict['drop']
         if 'set_vlan_id' in action_dict:
             self.set_vlan_id = action_dict['set_vlan_id']
         if 'set_vlan_priority' in action_dict:
@@ -815,6 +835,10 @@ class Action(object):
         action_dict = {}      
         if self.output is not None:
             action_dict['output'] = self.output  
+        if self.controller is not None:
+            action_dict['controller'] = self.controller  
+        if self.drop is not None:
+            action_dict['drop'] = self.drop  
         if self.set_vlan_id is not None:
             action_dict['set_vlan_id'] = self.set_vlan_id
         if self.set_vlan_priority is not None:
