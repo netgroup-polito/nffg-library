@@ -416,11 +416,11 @@ class VNF(object):
             
             # Check maximum number of port per label
             if num_ports_per_label > maximum_number_of_ports_per_label:
-                raise WrongNumberOfPorts("The maximum number of port for: "+str(label)+" is: "+str(maximum_number_of_ports_per_label))
+                raise WrongNumberOfPorts("The maximum number of port for: "+str(label)+" is: "+str(maximum_number_of_ports_per_label)+" found: "+str(num_ports_per_label))
             
             # Check minimum number of port per label
             if num_ports_per_label < minimum_number_of_ports_per_label:
-                raise WrongNumberOfPorts("The minimum number of port for: "+str(label)+" is: "+str(minimum_number_of_ports_per_label))
+                raise WrongNumberOfPorts("The minimum number of port for: "+str(label)+" is: "+str(minimum_number_of_ports_per_label)+" found: "+str(num_ports_per_label))
         
         for port in self.ports:
             # TODO: Check that, the relative index of the port doesn't exceed the maximum number of ports for that label
