@@ -328,7 +328,7 @@ class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = None,
                 groups = None, template = None, status = None,
-                db_id = None, internal_id = None):
+                db_id = None, internal_id = None, availabilty_zone = None):
         self.id = _id
         self.name = name
         self.vnf_template_location = vnf_template_location
@@ -338,6 +338,7 @@ class VNF(object):
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
+        self.availabilty_zone = availabilty_zone
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
@@ -554,7 +555,7 @@ class EndPoint(object):
                 self.interface = end_point_dict[self.type]['interface']
                 if 'ttl' in end_point_dict[self.type]:
                     self.ttl = end_point_dict[self.type]['ttl']   
-            elif self.type == 'vlan-id':
+            elif self.type == 'vlan':
                 self.interface = end_point_dict[self.type]['interface']
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
                 if 'node' in end_point_dict[self.type]:
