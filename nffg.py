@@ -407,7 +407,7 @@ class VNF(object):
                         maximum_number_of_ports_per_label = sys.maxint
                     else:
                         maximum_number_of_ports_per_label = int(template_port.position.split('-')[0]) - int(template_port.position.split('-')[1]) + 1
-                    minimum_number_of_ports_per_label = template_port.min
+                    minimum_number_of_ports_per_label = int(template_port.min)
                     found = True
                     
             # Check if the label of the vnf's ports exist in the template
