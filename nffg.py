@@ -647,10 +647,10 @@ class FlowRule(object):
         if self.priority is not None:
             flow_rule_dict['priority'] = self.priority
         if self.match is not None:
-            flow_rule_dict['match'] = self.match.getDict()
+            flow_rule_dict['match'] = self.match.getDict(extended)
         actions = []
         for action in self.actions:
-            actions.append(action.getDict())
+            actions.append(action.getDict(extended))
         flow_rule_dict['actions'] = actions
         if extended is True:
             if self.status is not None:
