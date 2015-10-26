@@ -363,7 +363,7 @@ class VNF(object):
             vnf_dict['vnf_template'] = self.vnf_template_location
         ports_dict = []
         for port in self.ports:
-            ports_dict.append(port.getDict())
+            ports_dict.append(port.getDict(extended))
         if ports_dict:
             vnf_dict['ports'] = ports_dict
         if self.groups:
