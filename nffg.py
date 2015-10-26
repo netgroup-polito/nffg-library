@@ -366,7 +366,7 @@ class VNF(object):
             ports_dict.append(port.getDict())
         if ports_dict:
             vnf_dict['ports'] = ports_dict
-        if self.groups is not None:
+        if self.groups:
             vnf_dict['groups'] = self.groups
         if extended is True:
             if self.status is not None:
@@ -840,9 +840,9 @@ class Action(object):
         action_dict = {}      
         if self.output is not None:
             action_dict['output'] = self.output  
-        if self.controller is not None:
+        if self.controller is not False:
             action_dict['controller'] = self.controller  
-        if self.drop is not None:
+        if self.drop is not False:
             action_dict['drop'] = self.drop  
         if self.set_vlan_id is not None:
             action_dict['set_vlan_id'] = self.set_vlan_id
