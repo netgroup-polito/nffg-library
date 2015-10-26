@@ -265,7 +265,7 @@ class NF_FG(object):
         for old_vnf in self.vnfs:
             vnf_found = False
             for new_vnf in nffg_new.vnfs:
-                if old_vnf.id == new_vnf.id and old_vnf.name == new_vnf.name and old_vnf.template == new_vnf.template:
+                if old_vnf.id == new_vnf.id and old_vnf.name == new_vnf.name and old_vnf.vnf_template_location == new_vnf.vnf_template_location:
                     new_vnf.status = 'already_deployed'
                     new_vnf.db_id = old_vnf.db_id
                     new_vnf.internal_id = old_vnf.internal_id
@@ -297,7 +297,12 @@ class NF_FG(object):
         for old_endpoint in self.end_points:
             endpoint_found = False
             for new_endpoint in nffg_new.end_points:
-                if old_endpoint.id == new_endpoint.id:
+                if old_endpoint.id == new_endpoint.id and old_endpoint.type == new_endpoint.type\
+                 and old_endpoint.vlan_id == new_endpoint.vlan_id and old_endpoint.remote_endpoint_id == new_endpoint.remote_endpoint_id\
+                 and old_endpoint.node == new_endpoint.node and old_endpoint.switch_id == new_endpoint.switch_id\
+                 and old_endpoint.interface == new_endpoint.interface and old_endpoint.remote_ip == new_endpoint.remote_ip\
+                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
+                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl:
                     new_endpoint.status = 'already_deployed'
                     new_endpoint.db_id = old_endpoint.db_id
                     endpoint_found = True
