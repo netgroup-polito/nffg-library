@@ -63,8 +63,8 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['big-switch']['flow-rules'] = flow_rules_dict
         return nffg_dict
     
-    def getJSON(self):
-        return json.dumps(self.getDict()) 
+    def getJSON(self, extended = False):
+        return json.dumps(self.getDict(extended)) 
     
     def getVNF(self, vnf_id):
         for vnf in self.vnfs:
