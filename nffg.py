@@ -493,7 +493,8 @@ class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
                  remote_endpoint_id = None, node = None, switch_id = None,
                  interface = None, remote_ip = None, local_ip = None, ttl = None,
-                 status = None, db_id = None, internal_id = None, vlan_id = None):
+                 status = None, db_id = None, internal_id = None, vlan_id = None, 
+                 interface_internal_id = None):
         '''
         Parameters
         ----------
@@ -534,6 +535,7 @@ class EndPoint(object):
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
+        self.interface_internal_id = interface_internal_id
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -596,6 +598,8 @@ class EndPoint(object):
                 end_point_dict['db_id'] = self.db_id
             if self.internal_id is not None:
                 end_point_dict['internal_id'] = self.internal_id
+            if self.interface_internal_id is not None:
+                end_point_dict['interface_internal_id'] = self.interface_internal_id
         return end_point_dict   
 
     def deleteAllConnections(self):
