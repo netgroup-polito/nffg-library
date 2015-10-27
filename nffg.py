@@ -567,8 +567,8 @@ class EndPoint(object):
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
                 if 'node' in end_point_dict[self.type]:
                     self.node = end_point_dict[self.type]['node']
-                if 'switch_id' in end_point_dict[self.type]:
-                    self.switch_id = end_point_dict[self.type]['switch_id']
+                if 'switch-id' in end_point_dict[self.type]:
+                    self.switch_id = end_point_dict[self.type]['switch-id']
          
     def getDict(self, extended = False):
         end_point_dict = {}
