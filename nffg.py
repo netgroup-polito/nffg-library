@@ -554,8 +554,8 @@ class EndPoint(object):
                 self.interface = end_point_dict[self.type]['interface']
                 if 'node' in end_point_dict[self.type]:
                     self.node = end_point_dict[self.type]['node']
-                if 'switch_id' in end_point_dict[self.type]:
-                    self.switch_id = end_point_dict[self.type]['switch_id']
+                if 'switch-id' in end_point_dict[self.type]:
+                    self.switch_id = end_point_dict[self.type]['switch-id']
             elif self.type == 'gre-tunnel':
                 self.remote_ip = end_point_dict[self.type]['remote_ip']
                 self.local_ip = end_point_dict[self.type]['local_ip']
@@ -585,7 +585,7 @@ class EndPoint(object):
                 if self.node is not None:
                     end_point_dict[self.type]['node'] = self.node
                 if self.switch_id is not None:
-                    end_point_dict[self.type]['switch_id'] = self.switch_id     
+                    end_point_dict[self.type]['switch-id'] = self.switch_id     
                 if self.interface is not None:
                     end_point_dict[self.type]['interface'] = self.interface
                 if self.remote_ip is not None:
@@ -595,7 +595,7 @@ class EndPoint(object):
                 if self.ttl is not None:
                     end_point_dict[self.type]['ttl'] = self.ttl
                 if self.vlan_id is not None:
-                    end_point_dict[self.type]['vlan_id'] = self.vlan_id             
+                    end_point_dict[self.type]['vlan-id'] = self.vlan_id             
         if extended is True:
             if self.status is not None:
                 end_point_dict['status'] = self.status 
