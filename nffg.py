@@ -182,8 +182,12 @@ class NF_FG(object):
         self.nffg.vnfs.remove(old_vnf)
     
     def attachNF_FG(self, attaching_nffg, end_point_name):
-        attaching_end_point = attaching_nffg.getEndPointsFromName(end_point_name)[0]
-        end_point = self.getEndPointsFromName(end_point_name)[0]
+        try:
+            attaching_end_point = attaching_nffg.getEndPointsFromName(end_point_name)[0]
+            end_point = self.getEndPointsFromName(end_point_name)[0]
+        except IndexError:
+            return
+            
         
         if attaching_end_point is None or end_point is None:
             raise Exception("WARNING: Impossible to attach the graph: "+self.id+" with graph: "+attaching_nffg.id+" on an end-point called: "+end_point_name+", doesn't exit the common end_point.")
