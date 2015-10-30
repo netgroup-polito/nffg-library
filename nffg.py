@@ -197,8 +197,8 @@ class NF_FG(object):
             self.flow_rules.remove(ingoing_flowrule)
         
         # Add connections from external graph to internal graph 
-        attaching_ingoing_flowrules = attaching_nffg.getFlowFulesSendingTrafficFromEndpoint(attaching_end_point.id)
-        outgoing_flowrules = self.getFlowRulesSendingTrafficToEndpoint(end_point.id)
+        attaching_ingoing_flowrules = attaching_nffg.getFlowFulesSendingTrafficFromEndPoint(attaching_end_point.id)
+        outgoing_flowrules = self.getFlowRulesSendingTrafficToEndPoint(end_point.id)
         self.flow_rules.append(self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrules))
         # Delete external_ingoing_flowrules from external_nffg.flow_rules?
         for outgoing_flowrule in outgoing_flowrules:
