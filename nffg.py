@@ -409,8 +409,8 @@ class NF_FG(object):
             self.deleteConnections("vnf:"+vnf_id+":"+port.id)
     
     def deleteConnections(self, node_id):
-        deleted_flows = self.deleteIncomingFlowrule(self, node_id)
-        deleted_flows = deleted_flows + self.deletOutcomingFlowrule(self, node_id)
+        deleted_flows = self.deleteIncomingFlowrule(node_id)
+        deleted_flows = deleted_flows + self.deletOutcomingFlowrule(node_id)
         return deleted_flows
     
     def deleteIncomingFlowrule(self, node_id):
