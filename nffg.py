@@ -418,18 +418,17 @@ class NF_FG(object):
     def deleteIncomingFlowrule(self, node_id):
         deleted_flows = []
         for flow_rule in self.flow_rules[:]:
-            for action in flow_rule.actions:
-                if flow_rule.match.port_in == node_id and action.output == self.id:
-                    deleted_flows.append(copy.deepcopy(flow_rule))
-                    self.flow_rules.remove(flow_rule)
-                    continue
+            if flow_rule.match.port_in == node_id:
+                deleted_flows.append(copy.deepcopy(flow_rule))
+                self.flow_rules.remove(flow_rule)
+                continue
         return deleted_flows
     
     def deletOutcomingFlowrule(self, node_id):
         deleted_flows = []
         for flow_rule in self.flow_rules[:]:
             for action in flow_rule.actions:
-                if flow_rule.match.port_in == self.id and action.output == node_id:
+                if action.output == node_id:
                     deleted_flows.append(copy.deepcopy(flow_rule))
                     self.flow_rules.remove(flow_rule)
         return deleted_flows
