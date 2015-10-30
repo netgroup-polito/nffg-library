@@ -399,7 +399,39 @@ class NF_FG(object):
                 nffg.flow_rules.append(old_flowrule)
         
         return nffg
-                                
+    
+    def deleteEndPointConnections(self, endpoint_id):
+        self.deleteConnections("endpoint:"+endpoint_id)
+    
+    def deleteVNFConnections(self, vnf_id):
+        vnf = self.getVNF(vnf_id)
+        for port in vnf.ports:
+            self.deleteConnections("vnf:"+vnf_id+":"+port.id)
+    
+    def deleteConnections(self, node_id):
+        deleted_flows = self.deleteIncomingFlowrule(self, node_id)
+        deleted_flows = deleted_flows + self.deletOutcomingFlowrule(self, node_id)
+        return deleted_flows
+    
+    def deleteIncomingFlowrule(self, node_id):
+        deleted_flows = []
+        for flow_rule in self.flow_rules[:]:
+            for action in flow_rule.actions:
+                if flow_rule.match.port_in == node_id and action.output == self.id:
+                    deleted_flows.append(copy.deepcopy(flow_rule))
+                    self.flow_rules.remove(flow_rule)
+                    continue
+        return deleted_flows
+    
+    def deletOutcomingFlowrule(self, node_id):
+        deleted_flows = []
+        for flow_rule in self.flow_rules[:]:
+            for action in flow_rule.actions:
+                if flow_rule.match.port_in == self.id and action.output == node_id:
+                    deleted_flows.append(copy.deepcopy(flow_rule))
+                    self.flow_rules.remove(flow_rule)
+        return deleted_flows
+                    
 class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = None,
@@ -503,29 +535,6 @@ class VNF(object):
         for port in self.ports:
             # TODO: Check that, the relative index of the port doesn't exceed the maximum number of ports for that label
             pass
-    
-    def deleteAllConnections(self):
-        raise NotImplementedError()
-    
-    def deleteConnectionsToVNF(self, vnf_id):
-        raise NotImplementedError()
-    
-    def deleteConnections(self, node_id):
-        self.deleteIncomingFlowrule(self, node_id)
-        self.deletOutcomingFlowrule(self, node_id)
-        
-    def deleteIncomingFlowrule(self, node_id):
-        for flow_rule in self.flow_rules[:]:
-            for action in flow_rule.actions:
-                if flow_rule.match.port_in == node_id and action.output == self.id:
-                    self.flow_rules.remove(flow_rule)
-                    continue
-    
-    def deletOutcomingFlowrule(self, node_id):
-        for flow_rule in self.flow_rules[:]:
-            for action in flow_rule.actions:
-                if flow_rule.match.port_in == self.id and action.output == node_id:
-                    self.flow_rules.remove(flow_rule)
     
     def getHigherReletiveIDForPortLabel(self, label):
         max_relative_id = 0
@@ -678,21 +687,6 @@ class EndPoint(object):
             if self.interface_internal_id is not None:
                 end_point_dict['interface_internal_id'] = self.interface_internal_id
         return end_point_dict   
-
-    def deleteAllConnections(self):
-        deleted_flows = []
-        for flow_rule in self.flow_rules[:]:
-            for action in flow_rule.actions:
-                if action.output == "endpoint:"+self.id:
-                    deleted_flows.append(copy.deepcopy(flow_rule))
-                    self.flow_rules.remove(flow_rule)
-                    continue
-        for flow_rule in self.flow_rules[:]:
-            for action in flow_rule.actions:
-                if flow_rule.match.port_in == "endpoint:"+self.id:
-                    deleted_flows.append(copy.deepcopy(flow_rule))
-                    self.flow_rules.remove(flow_rule)        
-        return deleted_flows
 
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
