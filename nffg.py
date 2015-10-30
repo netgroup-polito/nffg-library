@@ -80,7 +80,7 @@ class NF_FG(object):
         for end_point in self.end_points:
             if end_point.id == end_point_id:
                 return end_point
-    
+            
     def addVNF(self, vnf):
         if type(vnf) is VNF:
             self.vnfs.append(vnf)
@@ -183,33 +183,33 @@ class NF_FG(object):
     
     def attachNF_FG(self, attaching_nffg, end_point_name):
         attaching_end_point = attaching_nffg.getEndPointsFromName(end_point_name)[0]
-        end_point = self.nffg.getEndPointsFromName(end_point_name)[0]
+        end_point = self.getEndPointsFromName(end_point_name)[0]
         
         if attaching_end_point is None or end_point is None:
-            raise Exception("WARNING: Impossible to attach the graph: "+self.nffg.id+" with graph: "+attaching_nffg.id+" on an end-point called: "+end_point_name+", doesn't exit the common end_point.")
+            raise Exception("WARNING: Impossible to attach the graph: "+self.id+" with graph: "+attaching_nffg.id+" on an end-point called: "+end_point_name+", doesn't exit the common end_point.")
         
         # Add connections from internal graph (VNF expanded) to external graph
         attaching_outgoing_flowrules = attaching_nffg.getFlowRulesSendingTrafficToEndPoint(attaching_end_point.id)
-        ingoing_flowrules = self.nffg.getFlowRuleSendingTrafficFromEndPoint(end_point.id)
-        self.nffg.flow_rules.append(self.mergeFlowrules(attaching_outgoing_flowrules, ingoing_flowrules))
+        ingoing_flowrules = self.getFlowRuleSendingTrafficFromEndPoint(end_point.id)
+        self.flow_rules.append(self.mergeFlowrules(attaching_outgoing_flowrules, ingoing_flowrules))
         # Delete external_outgoing_flowrules from external_nffg.flow_rules
         for ingoing_flowrule in ingoing_flowrules:
-            self.nffg.flow_rules.remove(ingoing_flowrule)
+            self.flow_rules.remove(ingoing_flowrule)
         
         # Add connections from external graph to internal graph 
         attaching_ingoing_flowrules = attaching_nffg.getFlowFuleSendingTrafficFromEndpoint(attaching_end_point.id)
-        outgoing_flowrules = self.nffg.getFlowRuleSendingTrafficToEndpoint(end_point.id)
-        self.nffg.flow_rules.append(self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrules))
+        outgoing_flowrules = self.getFlowRuleSendingTrafficToEndpoint(end_point.id)
+        self.flow_rules.append(self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrules))
         # Delete external_ingoing_flowrules from external_nffg.flow_rules?
         for outgoing_flowrule in outgoing_flowrules:
-            self.nffg.flow_rules.remove(outgoing_flowrule) 
+            self.flow_rules.remove(outgoing_flowrule) 
             
         # Add the VNFs of the attaching graph
         for vnf in attaching_nffg.vnfs:
-            self.nffg.vnfs.append(vnf)
+            self.vnfs.append(vnf)
         
         # Delete the end-point of the attachment in the graph
-        self.nffg.end_points.remove(end_point)
+        self.end_points.remove(end_point)
     
     def mergeFlowrules(self, outgoing_flow_rules, ingoing_flow_rules):
         flowrules = []
