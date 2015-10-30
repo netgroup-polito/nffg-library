@@ -208,9 +208,14 @@ class NF_FG(object):
         for vnf in attaching_nffg.vnfs:
             self.vnfs.append(vnf)
         
+        # Add the end-points of the attaching graph
+        for new_end_point in attaching_nffg.end_points:
+            self.end_points.append(new_end_point)
+        
         # Delete the end-point of the attachment in the graph
         self.end_points.remove(end_point)
-    
+        self.end_points.remove(attaching_end_point)
+        
     def mergeFlowrules(self, outgoing_flow_rules, ingoing_flow_rules):
         flowrules = []
         for outgoing_flow_rule in outgoing_flow_rules:
