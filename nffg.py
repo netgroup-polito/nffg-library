@@ -195,6 +195,8 @@ class NF_FG(object):
         # Delete external_outgoing_flowrules from external_nffg.flow_rules
         for ingoing_flowrule in ingoing_flowrules:
             self.flow_rules.remove(ingoing_flowrule)
+        for attaching_outgoing_flowrule in attaching_outgoing_flowrules:
+            attaching_nffg.flow_rules.remove(attaching_outgoing_flowrule)
         
         # Add connections from external graph to internal graph 
         attaching_ingoing_flowrules = attaching_nffg.getFlowRulesSendingTrafficFromEndPoint(attaching_end_point.id)
@@ -203,6 +205,8 @@ class NF_FG(object):
         # Delete external_ingoing_flowrules from external_nffg.flow_rules?
         for outgoing_flowrule in outgoing_flowrules:
             self.flow_rules.remove(outgoing_flowrule) 
+        for attaching_ingoing_flowrule in attaching_ingoing_flowrules:
+            attaching_nffg.flow_rules.remove(attaching_ingoing_flowrule)
             
         # Add the VNFs of the attaching graph
         for new_vnf in attaching_nffg.vnfs:
