@@ -401,12 +401,14 @@ class NF_FG(object):
         return nffg
     
     def deleteEndPointConnections(self, endpoint_id):
-        self.deleteConnections("endpoint:"+endpoint_id)
+        return self.deleteConnections("endpoint:"+endpoint_id)
     
     def deleteVNFConnections(self, vnf_id):
         vnf = self.getVNF(vnf_id)
+        deleted_flows=[]
         for port in vnf.ports:
-            self.deleteConnections("vnf:"+vnf_id+":"+port.id)
+            deleted_flows = deleted_flows + self.deleteConnections("vnf:"+vnf_id+":"+port.id)
+        return 
     
     def deleteConnections(self, node_id):
         deleted_flows = self.deleteIncomingFlowrule(node_id)
