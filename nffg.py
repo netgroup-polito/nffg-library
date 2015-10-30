@@ -538,7 +538,7 @@ class VNF(object):
             pass
     
     def getHigherReletiveIDForPortLabel(self, label):
-        max_relative_id = 0
+        max_relative_id = -1
         for port in self.ports:
             if port.id.split(":")[0] == label:
                 if port.id.split(":")[1] > max_relative_id:
