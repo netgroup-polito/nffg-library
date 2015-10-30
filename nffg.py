@@ -218,6 +218,7 @@ class NF_FG(object):
         
         # Add the end-points of the attaching graph
         for new_flow_rule in attaching_nffg.flow_rules:
+            new_flow_rule.id = uuid.uuid4().hex
             self.flow_rules.append(new_flow_rule)
         
         # Delete the end-point of the attachment in the graph
