@@ -109,7 +109,7 @@ class NF_FG(object):
     def getFlowRulesSendingTrafficToEndPoint(self, endpoint_id):
         return self.getFlowRuleSendingTrafficToNode("endpoint:"+endpoint_id)
 
-    def getFlowFulesSendingTrafficFromEndPoint(self, endpoint_id):
+    def getFlowRulesSendingTrafficFromEndPoint(self, endpoint_id):
         return self.getFlowRuleSendingTrafficFromNode("endpoint:"+endpoint_id)
     
     def getFlowRulesSendingTrafficFromPort(self, vnf_id, port_id):
