@@ -108,8 +108,8 @@ class NF_FG(object):
     
     def getFlowRulesSendingTrafficToEndPoint(self, endpoint_id):
         return self.getFlowRuleSendingTrafficToNode("endpoint:"+endpoint_id)
-    
-    def getFlowFulesSendingTrafficFromEndPoint(self, endpoint_id):
+
+    def getFlowRulesSendingTrafficFromEndPoint(self, endpoint_id):
         return self.getFlowRuleSendingTrafficFromNode("endpoint:"+endpoint_id)
     
     def getFlowRulesSendingTrafficFromPort(self, vnf_id, port_id):
@@ -165,15 +165,15 @@ class NF_FG(object):
             # Add connections from internal graph (VNF expanded) to external graph
             internal_outgoing_flowrules = internal_nffg.getFlowRulesSendingTrafficToEndPoint(end_point_port.id)
             external_outgoing_flowrules = external_nffg.getFlowRulesSendingTrafficFromPort(old_vnf.id, end_point_port)
-            external_nffg.flow_rules.append(self.mergeFlowrules(internal_outgoing_flowrules, external_outgoing_flowrules))
+            external_nffg.flow_rules = external_nffg.flow_rules + self.mergeFlowrules(internal_outgoing_flowrules, external_outgoing_flowrules)
             # Delete external_outgoing_flowrules from external_nffg.flow_rules
             for external_outgoing_flowrule in external_outgoing_flowrules:
                 external_nffg.flow_rules.remove(external_outgoing_flowrule)
             
             # Add connections from external graph to internal graph 
-            internal_ingoing_flowrules = internal_nffg.getFlowFulesSendingTrafficFromEndPoint(end_point_port.id)
+            internal_ingoing_flowrules = internal_nffg.getFlowRulesSendingTrafficFromEndPoint(end_point_port.id)
             external_ingoing_flowrules = external_nffg.getFlowRulesSendingTrafficToPort(old_vnf.id, end_point_port)
-            external_nffg.flow_rules.append(self.mergeFlowrules(external_ingoing_flowrules, internal_ingoing_flowrules))
+            external_nffg.flow_rules = external_nffg.flow_rules + self.mergeFlowrules(external_ingoing_flowrules, internal_ingoing_flowrules)
             # Delete external_ingoing_flowrules from external_nffg.flow_rules?
             for external_ingoing_flowrule in external_ingoing_flowrules:
                 external_nffg.flow_rules.remove(external_ingoing_flowrule)      
@@ -190,65 +190,131 @@ class NF_FG(object):
         
         # Add connections from internal graph (VNF expanded) to external graph
         attaching_outgoing_flowrules = attaching_nffg.getFlowRulesSendingTrafficToEndPoint(attaching_end_point.id)
-        ingoing_flowrules = self.getFlowRuleSendingTrafficFromEndPoint(end_point.id)
-        self.flow_rules.append(self.mergeFlowrules(attaching_outgoing_flowrules, ingoing_flowrules))
+        ingoing_flowrules = self.getFlowRulesSendingTrafficFromEndPoint(end_point.id)
+        self.flow_rules = self.flow_rules + self.mergeFlowrules(attaching_outgoing_flowrules, ingoing_flowrules)
         # Delete external_outgoing_flowrules from external_nffg.flow_rules
         for ingoing_flowrule in ingoing_flowrules:
             self.flow_rules.remove(ingoing_flowrule)
+        for attaching_outgoing_flowrule in attaching_outgoing_flowrules:
+            attaching_nffg.flow_rules.remove(attaching_outgoing_flowrule)
         
         # Add connections from external graph to internal graph 
-        attaching_ingoing_flowrules = attaching_nffg.getFlowFuleSendingTrafficFromEndpoint(attaching_end_point.id)
-        outgoing_flowrules = self.getFlowRuleSendingTrafficToEndpoint(end_point.id)
-        self.flow_rules.append(self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrules))
+        attaching_ingoing_flowrules = attaching_nffg.getFlowRulesSendingTrafficFromEndPoint(attaching_end_point.id)
+        outgoing_flowrules = self.getFlowRulesSendingTrafficToEndPoint(end_point.id)
+        self.flow_rules = self.flow_rules + self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrules)
         # Delete external_ingoing_flowrules from external_nffg.flow_rules?
         for outgoing_flowrule in outgoing_flowrules:
             self.flow_rules.remove(outgoing_flowrule) 
+        for attaching_ingoing_flowrule in attaching_ingoing_flowrules:
+            attaching_nffg.flow_rules.remove(attaching_ingoing_flowrule)
             
         # Add the VNFs of the attaching graph
-        for vnf in attaching_nffg.vnfs:
-            self.vnfs.append(vnf)
+        for new_vnf in attaching_nffg.vnfs:
+            self.vnfs.append(new_vnf)
+        
+        # Add the end-points of the attaching graph
+        for new_end_point in attaching_nffg.end_points:
+            self.end_points.append(new_end_point)
+        
+        # Add the end-points of the attaching graph
+        for new_flow_rule in attaching_nffg.flow_rules:
+            self.flow_rules.append(new_flow_rule)
         
         # Delete the end-point of the attachment in the graph
         self.end_points.remove(end_point)
-    
+        self.end_points.remove(attaching_end_point)
+        
     def mergeFlowrules(self, outgoing_flow_rules, ingoing_flow_rules):
         flowrules = []
         for outgoing_flow_rule in outgoing_flow_rules:
             for ingoing_flow_rule in ingoing_flow_rules:
-                final_matches = self.mergeMatches(outgoing_flow_rule.matches, ingoing_flow_rule.matches)
-                flowrules.append(FlowRule(uuid.uuid4().hex,ingoing_flow_rule.actions, matches = final_matches))
+                final_match = self.mergeMatches(outgoing_flow_rule.match, ingoing_flow_rule.match)
+                if outgoing_flow_rule.match.port_in is not None:
+                    final_match.port_in = outgoing_flow_rule.match.port_in
+                flowrules.append(FlowRule(_id=uuid.uuid4().hex, priority=ingoing_flow_rule.priority,
+                                           actions=ingoing_flow_rule.actions, match = final_match))
         return flowrules    
     
-    def mergeMatches(self, first_matches, second_matches):
-        final_matches = []
-        match = Match() 
-        fields = [match.source_mac, match.dest_mac, match.vlan_id, match.vlan_priority, match.ether_type, match.source_ip,
-                   match.dest_ip, match.protocol, match.source_port, match.dest_port, match.tos_bits]
-        for first_match in first_matches:
-            for second_match in second_matches:
-                for field in fields:
-                    if field in first_match.of_field and field in second_match.of_field:
-                        if first_match.of_field[field] == second_match.of_field[field]:
-                            match.of_field[field] = second_match.of_field[field]
-                        else:
-                            break
-                    elif field in first_match.of_field:
-                        match.of_field[field] = first_match.of_field[field]
-                    elif field in second_match.of_field:
-                        match.of_field[field] = second_match.of_field[field]
-
-                match._id = uuid.uuid4().hex
-                
-                ############################################################
-                # WARNING: To avoid priority problems all the connections  #
-                #          from a port should be a 1to1 connections        #
-                ############################################################
-                match.priority = second_match.priority
-                ############################################################
-                
-                final_matches.append(match)
-                
-        return final_matches
+    def mergeMatches(self, first_match, second_match):
+        match = Match()
+        if first_match.ether_type is not None and second_match.ether_type is not None:
+            if first_match.ether_type == second_match.ether_type:
+                match.ether_type = second_match.ether_type
+        elif first_match.ether_type is not None:
+            match.ether_type = first_match.ether_type
+        elif second_match.ether_type is not None:
+            match.ether_type = second_match.ether_type
+        if first_match.vlan_id is not None and second_match.vlan_id is not None:
+            if first_match.vlan_id == second_match.vlan_id:
+                match.vlan_id = second_match.vlan_id
+        elif first_match.vlan_id is not None:
+            match.vlan_id = first_match.vlan_id
+        elif second_match.vlan_id is not None:
+            match.vlan_id = second_match.vlan_id
+        if first_match.vlan_priority is not None and second_match.vlan_priority is not None:
+            if first_match.vlan_priority == second_match.vlan_priority:
+                match.vlan_priority = second_match.vlan_priority
+        elif first_match.vlan_priority is not None:
+            match.vlan_priority = first_match.vlan_priority
+        elif second_match.vlan_priority is not None:
+            match.vlan_priority = second_match.vlan_priority
+        if first_match.source_mac is not None and second_match.source_mac is not None:
+            if first_match.source_mac == second_match.source_mac:
+                match.source_mac = second_match.source_mac
+        elif first_match.source_mac is not None:
+            match.source_mac = first_match.source_mac
+        elif second_match.source_mac is not None:
+            match.source_mac = second_match.source_mac
+        if first_match.dest_mac is not None and second_match.dest_mac is not None:
+            if first_match.dest_mac == second_match.dest_mac:
+                match.dest_mac = second_match.dest_mac
+        elif first_match.dest_mac is not None:
+            match.dest_mac = first_match.dest_mac
+        elif second_match.dest_mac:
+            match.dest_mac = second_match.dest_mac
+        if first_match.source_ip is not None and second_match.source_ip is not None:
+            if first_match.source_ip == second_match.source_ip:
+                match.source_ip = second_match.source_ip
+        elif first_match.source_ip is not None:
+            match.source_ip = first_match.source_ip
+        elif second_match.source_ip is not None:
+            match.source_ip = second_match.source_ip
+        if first_match.dest_ip is not None and second_match.dest_ip is not None:
+            if first_match.dest_ip == second_match.dest_ip:
+                match.dest_ip = second_match.dest_ip
+        elif first_match.dest_ip is not None:
+            match.dest_ip = first_match.dest_ip
+        elif second_match.dest_ip is not None:
+            match.dest_ip = second_match.dest_ip
+        if first_match.tos_bits is not None and second_match.tos_bits is not None:
+            if first_match.tos_bits == second_match.tos_bits:
+                match.tos_bits = second_match.tos_bits
+        elif first_match.tos_bits is not None:
+            match.tos_bits = first_match.tos_bits
+        elif second_match.tos_bits is not None:
+            match.tos_bits = second_match.tos_bits
+        if first_match.source_port is not None and second_match.source_port is not None:
+            if first_match.source_port == second_match.source_port:
+                match.source_port = second_match.source_port
+        elif first_match.source_port is not None:
+            match.source_port = first_match.source_port
+        elif second_match.source_port is not None:
+            match.source_port = second_match.source_port
+        if first_match.dest_port is not None and second_match.dest_port is not None:
+            if first_match.dest_port == second_match.dest_port:
+                match.dest_port = second_match.dest_port
+        elif first_match.dest_port is not None:
+            match.dest_port = first_match.dest_port
+        elif second_match.dest_port is not None:
+            match.dest_port = second_match.dest_port
+        if first_match.protocol is not None and second_match.protocol is not None:
+            if first_match.protocol == second_match.protocol:
+                match.protocol = second_match.protocol
+        elif first_match.protocol is not None:
+            match.protocol = first_match.protocol
+        elif second_match.protocol is not None:
+            match.protocol = second_match.protocol
+        return match
     
     def diff (self, nffg_new):
         nffg = NF_FG()
@@ -392,6 +458,7 @@ class VNF(object):
             self.ports.append(port)
         else:
             raise TypeError("Tried to add a port with a wrong type. Expected Port, found "+type(port))    
+        return port
     
     def addTemplate(self, template):
         self.template = template
