@@ -455,6 +455,7 @@ class VNF(object):
             self.ports.append(port)
         else:
             raise TypeError("Tried to add a port with a wrong type. Expected Port, found "+type(port))    
+        return port
     
     def addTemplate(self, template):
         self.template = template
