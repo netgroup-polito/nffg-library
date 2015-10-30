@@ -205,12 +205,16 @@ class NF_FG(object):
             self.flow_rules.remove(outgoing_flowrule) 
             
         # Add the VNFs of the attaching graph
-        for vnf in attaching_nffg.vnfs:
-            self.vnfs.append(vnf)
+        for new_vnf in attaching_nffg.vnfs:
+            self.vnfs.append(new_vnf)
         
         # Add the end-points of the attaching graph
         for new_end_point in attaching_nffg.end_points:
             self.end_points.append(new_end_point)
+        
+        # Add the end-points of the attaching graph
+        for new_flow_rule in attaching_nffg.flow_rules:
+            self.flow_rules.append(new_flow_rule)
         
         # Delete the end-point of the attachment in the graph
         self.end_points.remove(end_point)
