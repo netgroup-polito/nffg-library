@@ -220,36 +220,116 @@ class NF_FG(object):
                                            actions=ingoing_flow_rule.actions, match = final_match))
         return flowrules    
     
-    def mergeMatches(self, first_matches, second_matches):
-        final_matches = []
-        match = Match() 
-        fields = [match.source_mac, match.dest_mac, match.vlan_id, match.vlan_priority, match.ether_type, match.source_ip,
-                   match.dest_ip, match.protocol, match.source_port, match.dest_port, match.tos_bits]
-        for first_match in first_matches:
-            for second_match in second_matches:
-                for field in fields:
-                    if field in first_match.of_field and field in second_match.of_field:
-                        if first_match.of_field[field] == second_match.of_field[field]:
-                            match.of_field[field] = second_match.of_field[field]
-                        else:
-                            break
-                    elif field in first_match.of_field:
-                        match.of_field[field] = first_match.of_field[field]
-                    elif field in second_match.of_field:
-                        match.of_field[field] = second_match.of_field[field]
-
-                match._id = uuid.uuid4().hex
-                
-                ############################################################
-                # WARNING: To avoid priority problems all the connections  #
-                #          from a port should be a 1to1 connections        #
-                ############################################################
-                match.priority = second_match.priority
-                ############################################################
-                
-                final_matches.append(match)
-                
-        return final_matches
+    def mergeMatches(self, first_match, second_match):
+        match = Match()
+        if hasattr(first_match, 'port_in') and hasattr(second_match, 'port_in'):
+            if first_match.port_in == second_match.port_in:
+                match.port_in = second_match.port_in
+            else:
+                break
+        elif hasattr(first_match, 'port_in'):
+            match.port_in = first_match.port_in
+        elif hasattr(second_match, 'port_in'):
+            match.property = second_match.port_in
+        if hasattr(first_match, 'ether_type') and hasattr(second_match, 'ether_type'):
+            if first_match.ether_type == second_match.ether_type:
+                match.ether_type = second_match.ether_type
+            else:
+                break
+        elif hasattr(first_match, 'ether_type'):
+            match.ether_type = first_match.ether_type
+        elif hasattr(second_match, 'ether_type'):
+            match.ether_type = second_match.ether_type
+        if hasattr(first_match, 'vlan_id') and hasattr(second_match, 'vlan_id'):
+            if first_match.vlan_id == second_match.vlan_id:
+                match.vlan_id = second_match.vlan_id
+            else:
+                break
+        elif hasattr(first_match, 'vlan_id'):
+            match.vlan_id = first_match.vlan_id
+        elif hasattr(second_match, 'vlan_id'):
+            match.vlan_id = second_match.vlan_id
+        if hasattr(first_match, 'vlan_priority') and hasattr(second_match, 'vlan_priority'):
+            if first_match.vlan_priority == second_match.vlan_priority:
+                match.vlan_priority = second_match.vlan_priority
+            else:
+                break
+        elif hasattr(first_match, 'vlan_priority'):
+            match.vlan_priority = first_match.vlan_priority
+        elif hasattr(second_match, 'vlan_priority'):
+            match.vlan_priority = second_match.vlan_priority
+        if hasattr(first_match, 'source_mac') and hasattr(second_match, 'source_mac'):
+            if first_match.source_mac == second_match.source_mac:
+                match.source_mac = second_match.source_mac
+            else:
+                break
+        elif hasattr(first_match, 'source_mac'):
+            match.source_mac = first_match.source_mac
+        elif hasattr(second_match, 'source_mac'):
+            match.source_mac = second_match.source_mac
+        if hasattr(first_match, 'dest_mac') and hasattr(second_match, 'dest_mac'):
+            if first_match.dest_mac == second_match.dest_mac:
+                match.dest_mac = second_match.dest_mac
+            else:
+                break
+        elif hasattr(first_match, 'dest_mac'):
+            match.dest_mac = first_match.dest_mac
+        elif hasattr(second_match, 'dest_mac'):
+            match.dest_mac = second_match.dest_mac
+        if hasattr(first_match, 'source_ip') and hasattr(second_match, 'source_ip'):
+            if first_match.source_ip == second_match.source_ip:
+                match.source_ip = second_match.source_ip
+            else:
+                break
+        elif hasattr(first_match, 'source_ip'):
+            match.source_ip = first_match.source_ip
+        elif hasattr(second_match, 'source_ip'):
+            match.source_ip = second_match.source_ip
+        if hasattr(first_match, 'dest_ip') and hasattr(second_match, 'dest_ip'):
+            if first_match.dest_ip == second_match.dest_ip:
+                match.dest_ip = second_match.dest_ip
+            else:
+                break
+        elif hasattr(first_match, 'dest_ip'):
+            match.dest_ip = first_match.dest_ip
+        elif hasattr(second_match, 'dest_ip'):
+            match.dest_ip = second_match.dest_ip
+        if hasattr(first_match, 'tos_bits') and hasattr(second_match, 'tos_bits'):
+            if first_match.tos_bits == second_match.tos_bits:
+                match.tos_bits = second_match.tos_bits
+            else:
+                break
+        elif hasattr(first_match, 'tos_bits'):
+            match.tos_bits = first_match.tos_bits
+        elif hasattr(second_match, 'tos_bits'):
+            match.tos_bits = second_match.tos_bits
+        if hasattr(first_match, 'source_port') and hasattr(second_match, 'source_port'):
+            if first_match.source_port == second_match.source_port:
+                match.source_port = second_match.source_port
+            else:
+                break
+        elif hasattr(first_match, 'source_port'):
+            match.source_port = first_match.source_port
+        elif hasattr(second_match, 'source_port'):
+            match.source_port = second_match.source_port
+        if hasattr(first_match, 'dest_port') and hasattr(second_match, 'dest_port'):
+            if first_match.dest_port == second_match.dest_port:
+                match.dest_port = second_match.dest_port
+            else:
+                break
+        elif hasattr(first_match, 'dest_port'):
+            match.dest_port = first_match.dest_port
+        elif hasattr(second_match, 'dest_port'):
+            match.dest_port = second_match.dest_port
+        if hasattr(first_match, 'protocol') and hasattr(second_match, 'protocol'):
+            if first_match.protocol == second_match.protocol:
+                match.protocol = second_match.protocol
+            else:
+                break
+        elif hasattr(first_match, 'protocol'):
+            match.protocol = first_match.protocol
+        elif hasattr(second_match, 'protocol'):
+            match.protocol = second_match.protocol
     
     def diff (self, nffg_new):
         nffg = NF_FG()
