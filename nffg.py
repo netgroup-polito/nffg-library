@@ -221,8 +221,8 @@ class NF_FG(object):
         for outgoing_flow_rule in outgoing_flow_rules:
             for ingoing_flow_rule in ingoing_flow_rules:
                 final_match = self.mergeMatches(outgoing_flow_rule.match, ingoing_flow_rule.match)
-                if outgoing_flow_rules.match.port_in is not None:
-                    final_match.port_in = outgoing_flow_rules.match.port_in
+                if outgoing_flow_rule.match.port_in is not None:
+                    final_match.port_in = outgoing_flow_rule.match.port_in
                 flowrules.append(FlowRule(_id=uuid.uuid4().hex, priority=ingoing_flow_rule.priority,
                                            actions=ingoing_flow_rule.actions, match = final_match))
         return flowrules    
