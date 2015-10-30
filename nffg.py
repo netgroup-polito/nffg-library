@@ -625,7 +625,7 @@ class EndPoint(object):
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
                  match = None, actions = None, status = None,
-                 db_id = None, internal_id = None, _type = None):
+                 db_id = None, internal_id = None, _type = None, node_id = None):
         self.id = _id
         self.priority = priority
         self.match = match
@@ -634,6 +634,7 @@ class FlowRule(object):
         self.db_id = db_id
         self.internal_id = internal_id
         self.type = _type
+        self.node_id = node_id
     
     def parseDict(self, flow_rule_dict):
         self.id = flow_rule_dict['id']
@@ -666,7 +667,9 @@ class FlowRule(object):
             if self.internal_id is not None:
                 flow_rule_dict['internal_id'] = self.internal_id           
             if self.type is not None:
-                flow_rule_dict['type'] = self.type       
+                flow_rule_dict['type'] = self.type    
+            if self.node_id is not None:
+                flow_rule_dict['node_id'] = self.node_id    
         return flow_rule_dict
           
     def changeIngressPortOfFlowRule(self, old_port_id, new_port_id):
