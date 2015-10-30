@@ -823,7 +823,7 @@ class Action(object):
         if 'controller' in action_dict:
             self.controller = action_dict['controller']
         if 'drop' in action_dict:
-            self.controller = action_dict['drop']
+            self.drop = action_dict['drop']
         if 'set_vlan_id' in action_dict:
             self.set_vlan_id = action_dict['set_vlan_id']
         if 'set_vlan_priority' in action_dict:
