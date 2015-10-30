@@ -215,8 +215,9 @@ class NF_FG(object):
         flowrules = []
         for outgoing_flow_rule in outgoing_flow_rules:
             for ingoing_flow_rule in ingoing_flow_rules:
-                final_matches = self.mergeMatches(outgoing_flow_rule.matches, ingoing_flow_rule.matches)
-                flowrules.append(FlowRule(uuid.uuid4().hex,ingoing_flow_rule.actions, matches = final_matches))
+                final_match = self.mergeMatches(outgoing_flow_rule.match, ingoing_flow_rule.match)
+                flowrules.append(FlowRule(_id=uuid.uuid4().hex, priority=ingoing_flow_rule.priority,
+                                           actions=ingoing_flow_rule.actions, match = final_match))
         return flowrules    
     
     def mergeMatches(self, first_matches, second_matches):
