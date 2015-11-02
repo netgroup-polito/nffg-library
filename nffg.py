@@ -179,7 +179,7 @@ class NF_FG(object):
                 external_nffg.flow_rules.remove(external_ingoing_flowrule)      
                 
         # Delete old VNF
-        self.nffg.vnfs.remove(old_vnf)
+        self.vnfs.remove(old_vnf)
     
     def attachNF_FG(self, attaching_nffg, end_point_name):
         try:
