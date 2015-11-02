@@ -146,15 +146,15 @@ class NF_FG(object):
                 flow_rules.append(flow_rule)
         return flow_rules
     
-    def expandNode(self, old_vnf, manifest):
+    def expandNode(self, old_vnf, template):
         '''
         WARNING: Only 1to1 or 1toN connection among VNFs of internal graph and VNFs of external graph are supported.
         ''' 
         external_nffg = self
         
         # Validate forwarding graph
-        ValidateNF_FG(manifest).validate()
-        internal_nffg = NF_FG(manifest)
+        ValidateNF_FG().validate(template)
+        internal_nffg = NF_FG(template)
         
         # Add new VNFs in graph
         for internal_vnf in internal_nffg.vnfs:
