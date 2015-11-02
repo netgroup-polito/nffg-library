@@ -403,6 +403,22 @@ class NF_FG(object):
     def deleteEndPointConnections(self, endpoint_id):
         return self.deleteConnections("endpoint:"+endpoint_id)
     
+    def deleteConnectionsBetweenVNFs(self, vnf1_id, port_vnf1_id, vnf2_id, port_vnf2_id):
+        deleted_flows=[]
+        for flow_rule in self.flow_rules[:]:
+            if flow_rule.match == 'vnf:'+vnf1_id+':'+port_vnf1_id:
+                for action in flow_rule.actions:
+                    if action.output == 'vnf:'+vnf2_id+':'+port_vnf2_id:
+                        deleted_flows.append(copy.deepcopy(flow_rule))
+                        self.flow_rules.remove(flow_rule)
+    
+            if flow_rule.match == 'vnf:'+vnf2_id+':'+port_vnf2_id:
+                for action in flow_rule.actions:
+                    if action.output == 'vnf:'+vnf1_id+':'+port_vnf1_id:
+                        deleted_flows.append(copy.deepcopy(flow_rule))
+                        self.flow_rules.remove(flow_rule)
+        return deleted_flows
+    
     def deleteVNFConnections(self, vnf_id):
         vnf = self.getVNF(vnf_id)
         deleted_flows=[]
@@ -740,10 +756,11 @@ class FlowRule(object):
         return flow_rule_dict
           
     def changeIngressPortOfFlowRule(self, old_port_id, new_port_id):
-        if self.id == old_port_id:
-            self.id = new_port_id
-            return new_port_id
-        return None
+        if self.match.port_in == old_port_id:
+            self.match.port_in = new_port_id
+        for action in self.actions:
+            if action.output == old_port_id:
+                action.output = new_port_id
     
 class Match(object):
     def __init__(self, port_in=None, 
