@@ -406,13 +406,13 @@ class NF_FG(object):
     def deleteConnectionsBetweenVNFs(self, vnf1_id, port_vnf1_id, vnf2_id, port_vnf2_id):
         deleted_flows=[]
         for flow_rule in self.flow_rules[:]:
-            if flow_rule.match.port_id == 'vnf:'+vnf1_id+':'+port_vnf1_id:
+            if flow_rule.match.port_in == 'vnf:'+vnf1_id+':'+port_vnf1_id:
                 for action in flow_rule.actions:
                     if action.output == 'vnf:'+vnf2_id+':'+port_vnf2_id:
                         deleted_flows.append(copy.deepcopy(flow_rule))
                         self.flow_rules.remove(flow_rule)
     
-            if flow_rule.match.port_id == 'vnf:'+vnf2_id+':'+port_vnf2_id:
+            if flow_rule.match.port_in == 'vnf:'+vnf2_id+':'+port_vnf2_id:
                 for action in flow_rule.actions:
                     if action.output == 'vnf:'+vnf1_id+':'+port_vnf1_id:
                         deleted_flows.append(copy.deepcopy(flow_rule))
