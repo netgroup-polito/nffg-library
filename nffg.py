@@ -164,21 +164,30 @@ class NF_FG(object):
         # List on ports of the old VNF. These ports represent the end-point of the internal graph (VNF expanded).
         for end_point_port in old_vnf.ports:
             # Add connections from internal graph (VNF expanded) to external graph
-            internal_outgoing_flowrules = internal_nffg.getFlowRulesSendingTrafficToEndPoint(end_point_port.id)
+            internal_outgoing_flowrules = internal_nffg.getFlowRulesSendingTrafficToEndPoint(end_point_port.id.split(':')[0])
             external_outgoing_flowrules = external_nffg.getFlowRulesSendingTrafficFromPort(old_vnf.id, end_point_port.id)
             external_nffg.flow_rules = external_nffg.flow_rules + self.mergeFlowrules(internal_outgoing_flowrules, external_outgoing_flowrules)
             # Delete external_outgoing_flowrules from external_nffg.flow_rules
             for external_outgoing_flowrule in external_outgoing_flowrules:
                 external_nffg.flow_rules.remove(external_outgoing_flowrule)
+            for internal_outgoing_flowrule in internal_outgoing_flowrules:
+                internal_nffg.flow_rules.remove(internal_outgoing_flowrule)
             
             # Add connections from external graph to internal graph 
-            internal_ingoing_flowrules = internal_nffg.getFlowRulesSendingTrafficFromEndPoint(end_point_port.id)
+            internal_ingoing_flowrules = internal_nffg.getFlowRulesSendingTrafficFromEndPoint(end_point_port.id.split(':')[0])
             external_ingoing_flowrules = external_nffg.getFlowRulesSendingTrafficToPort(old_vnf.id, end_point_port.id)
             external_nffg.flow_rules = external_nffg.flow_rules + self.mergeFlowrules(external_ingoing_flowrules, internal_ingoing_flowrules)
             # Delete external_ingoing_flowrules from external_nffg.flow_rules?
             for external_ingoing_flowrule in external_ingoing_flowrules:
-                external_nffg.flow_rules.remove(external_ingoing_flowrule)      
-                
+                external_nffg.flow_rules.remove(external_ingoing_flowrule)
+            for internal_ingoing_flowrule in internal_ingoing_flowrules:
+                internal_nffg.flow_rules.remove(internal_ingoing_flowrule)     
+        
+        # Add Flow-rules
+        for internal_flow_rule in internal_nffg.flow_rules:
+            internal_flow_rule.id = uuid.uuid4().hex
+            external_nffg.flow_rules.append(internal_flow_rule)
+           
         # Delete old VNF
         self.vnfs.remove(old_vnf)
     
