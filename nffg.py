@@ -154,7 +154,8 @@ class NF_FG(object):
         
         # Validate forwarding graph
         ValidateNF_FG().validate(template)
-        internal_nffg = NF_FG(template)
+        internal_nffg = NF_FG()
+        internal_nffg.parseDict(template)
         
         # Add new VNFs in graph
         for internal_vnf in internal_nffg.vnfs:
