@@ -161,7 +161,7 @@ class NF_FG(object):
             external_nffg.addVNF(internal_vnf)
         
         # List on ports of the old VNF. These ports represent the end-point of the internal graph (VNF expanded).
-        for end_point_port in old_vnf.vnfs:
+        for end_point_port in old_vnf.ports:
             # Add connections from internal graph (VNF expanded) to external graph
             internal_outgoing_flowrules = internal_nffg.getFlowRulesSendingTrafficToEndPoint(end_point_port.id)
             external_outgoing_flowrules = external_nffg.getFlowRulesSendingTrafficFromPort(old_vnf.id, end_point_port)
