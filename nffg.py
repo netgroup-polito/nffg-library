@@ -607,7 +607,8 @@ class EndPoint(object):
                  remote_endpoint_id = None, node = None, switch_id = None,
                  interface = None, remote_ip = None, local_ip = None, ttl = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
-                 interface_internal_id = None):
+                 interface_internal_id = None, 
+                 prepare_connection_to_remote_endpoint_id = None):
         '''
         Parameters
         ----------
@@ -621,6 +622,12 @@ class EndPoint(object):
            Identify the remote end-point where this end-point will be connected.
            The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
            It is an optional field.
+        prepare_connection_to_remote_endpoint_id : string
+            Identify the remote end-point where this end-point will be connected.
+           The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
+           It is an optional field. Unlike the field  remote_endpoint_id, the field
+           prepare_connection_to_remote_endpoint_id does not trigger an attach operation
+           but only prepare the graph for a forthcoming connection.
         node : string
            Optional field. Its meaning depends on the value of field _type
         switch_id : string
@@ -649,6 +656,7 @@ class EndPoint(object):
         self.db_id = db_id
         self.internal_id = internal_id
         self.interface_internal_id = interface_internal_id
+        self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -656,6 +664,8 @@ class EndPoint(object):
             self.name = end_point_dict['name']
         if 'remote_endpoint_id' in end_point_dict:
             self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
+        if 'prepare_connection_to_remote_endpoint_id' in end_point_dict:
+            self.prepare_connection_to_remote_endpoint_id = end_point_dict['prepare_connection_to_remote_endpoint_id']
         if 'type' in end_point_dict:
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
@@ -686,6 +696,8 @@ class EndPoint(object):
             end_point_dict['name'] = self.name
         if self.remote_endpoint_id is not None:
             end_point_dict['remote_endpoint_id'] = self.remote_endpoint_id  
+        if self.prepare_connection_to_remote_endpoint_id is not None:
+            end_point_dict['prepare_connection_to_remote_endpoint_id'] = self.prepare_connection_to_remote_endpoint_id  
         if self.type is not None:
             end_point_dict['type'] = self.type
             if self.type != 'internal':
