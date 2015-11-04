@@ -383,9 +383,12 @@ class NF_FG(object):
                  and old_endpoint.node == new_endpoint.node and old_endpoint.switch_id == new_endpoint.switch_id\
                  and old_endpoint.interface == new_endpoint.interface and old_endpoint.remote_ip == new_endpoint.remote_ip\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
-                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
-                 and collections.Counter(old_endpoint.prepare_connection_to_remote_endpoint_ids) == collections.Counter(new_endpoint.prepare_connection_to_remote_endpoint_ids):
-                    
+                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl:
+                    if collections.Counter(old_endpoint.prepare_connection_to_remote_endpoint_ids) != collections.Counter(new_endpoint.prepare_connection_to_remote_endpoint_ids):
+                        new_endpoint.status = 'to_be_updated'
+                        new_endpoint.db_id = old_endpoint.db_id
+                        endpoint_found = True
+                        break
                     new_endpoint.status = 'already_deployed'
                     new_endpoint.db_id = old_endpoint.db_id
                     endpoint_found = True
