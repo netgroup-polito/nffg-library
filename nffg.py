@@ -3,7 +3,7 @@ Created on Oct 14, 2015
 
 @author: fabiomignini
 '''
-import sys, uuid, json, copy
+import sys, uuid, json, copy, collections
 from exception import InexistentLabelFound, WrongNumberOfPorts
 from validator import ValidateNF_FG
 
@@ -383,7 +383,9 @@ class NF_FG(object):
                  and old_endpoint.node == new_endpoint.node and old_endpoint.switch_id == new_endpoint.switch_id\
                  and old_endpoint.interface == new_endpoint.interface and old_endpoint.remote_ip == new_endpoint.remote_ip\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
-                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl:
+                 and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
+                 and collections.Counter(old_endpoint.prepare_connection_to_remote_endpoint_ids) == collections.Counter(new_endpoint.prepare_connection_to_remote_endpoint_ids):
+                    
                     new_endpoint.status = 'already_deployed'
                     new_endpoint.db_id = old_endpoint.db_id
                     endpoint_found = True
@@ -608,7 +610,8 @@ class EndPoint(object):
                  interface = None, remote_ip = None, local_ip = None, ttl = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, 
-                 prepare_connection_to_remote_endpoint_id = None):
+                 prepare_connection_to_remote_endpoint_id = None,
+                 prepare_connection_to_remote_endpoint_ids = None):
         '''
         Parameters
         ----------
@@ -622,12 +625,15 @@ class EndPoint(object):
            Identify the remote end-point where this end-point will be connected.
            The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
            It is an optional field.
-        prepare_connection_to_remote_endpoint_id : string
-            Identify the remote end-point where this end-point will be connected.
+        prepare_connection_to_remote_endpoint_ids : string
+            Identify the remote end-points where this end-point will be connected.
            The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
            It is an optional field. Unlike the field  remote_endpoint_id, the field
-           prepare_connection_to_remote_endpoint_id does not trigger an attach operation
+           prepare_connection_to_remote_endpoint_ids does not trigger an attach operation
            but only prepare the graph for a forthcoming connection.
+        prepare_connection_to_remote_endpoint_id : string
+            Is a field for the auto-generate 1 to 1 end-point (in the end-point switch model), and identifies
+            the remote end-points where this end-point will be connected.
         node : string
            Optional field. Its meaning depends on the value of field _type
         switch_id : string
@@ -657,6 +663,7 @@ class EndPoint(object):
         self.internal_id = internal_id
         self.interface_internal_id = interface_internal_id
         self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
+        self.prepare_connection_to_remote_endpoint_ids = prepare_connection_to_remote_endpoint_ids or []
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -664,8 +671,8 @@ class EndPoint(object):
             self.name = end_point_dict['name']
         if 'remote_endpoint_id' in end_point_dict:
             self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
-        if 'prepare_connection_to_remote_endpoint_id' in end_point_dict:
-            self.prepare_connection_to_remote_endpoint_id = end_point_dict['prepare_connection_to_remote_endpoint_id']
+        if 'prepare_connection_to_remote_endpoint_ids' in end_point_dict:
+            self.prepare_connection_to_remote_endpoint_ids = end_point_dict['prepare_connection_to_remote_endpoint_ids']
         if 'type' in end_point_dict:
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
@@ -696,11 +703,13 @@ class EndPoint(object):
             end_point_dict['name'] = self.name
         if self.remote_endpoint_id is not None:
             end_point_dict['remote_endpoint_id'] = self.remote_endpoint_id  
+        if self.prepare_connection_to_remote_endpoint_ids:
+            end_point_dict['prepare_connection_to_remote_endpoint_ids'] = self.prepare_connection_to_remote_endpoint_ids 
         if self.prepare_connection_to_remote_endpoint_id is not None:
-            end_point_dict['prepare_connection_to_remote_endpoint_id'] = self.prepare_connection_to_remote_endpoint_id  
+            end_point_dict['prepare_connection_to_remote_endpoint_id'] = self.prepare_connection_to_remote_endpoint_id 
         if self.type is not None:
             end_point_dict['type'] = self.type
-            if self.type != 'internal':
+            if self.type != 'internal' and self.type != 'shadow':
                 end_point_dict[self.type] = {}
                 if self.node is not None:
                     end_point_dict[self.type]['node'] = self.node
