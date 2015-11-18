@@ -434,7 +434,7 @@ class NF_FG(object):
         deleted_flows=[]
         for port in vnf.ports:
             deleted_flows = deleted_flows + self.deleteConnections("vnf:"+vnf_id+":"+port.id)
-        return 
+        return deleted_flows
     
     def deleteConnections(self, node_id):
         deleted_flows = self.deleteIncomingFlowrule(node_id)
