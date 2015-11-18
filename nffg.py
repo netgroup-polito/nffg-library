@@ -442,11 +442,11 @@ class NF_FG(object):
         return deleted_flows
     
     def deleteConnections(self, node_id):
-        deleted_flows = self.deleteIncomingFlowrule(node_id)
-        deleted_flows = deleted_flows + self.deletOutcomingFlowrule(node_id)
+        deleted_flows = self.deleteIncomingFlowrules(node_id)
+        deleted_flows = deleted_flows + self.deleteOutcomingFlowrules(node_id)
         return deleted_flows
     
-    def deleteIncomingFlowrule(self, node_id):
+    def deleteIncomingFlowrules(self, node_id):
         deleted_flows = []
         for flow_rule in self.flow_rules[:]:
             if flow_rule.match.port_in == node_id:
@@ -455,7 +455,7 @@ class NF_FG(object):
                 continue
         return deleted_flows
     
-    def deletOutcomingFlowrule(self, node_id):
+    def deleteOutcomingFlowrules(self, node_id):
         deleted_flows = []
         for flow_rule in self.flow_rules[:]:
             for action in flow_rule.actions:
