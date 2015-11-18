@@ -81,6 +81,11 @@ class NF_FG(object):
             if end_point.id == end_point_id:
                 return end_point
             
+    def getFlowRule(self, flow_rule_id):
+        for flow_rule in self.flow_rules:
+            if flow_rule.id == flow_rule_id:
+                return flow_rule 
+            
     def addVNF(self, vnf):
         if type(vnf) is VNF:
             self.vnfs.append(vnf)
