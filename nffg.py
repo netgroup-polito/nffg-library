@@ -608,28 +608,33 @@ class NF_FG(object):
                     flowrule_left.id = flow_id+"_2"
                     flowrule_left.match = Match(port_in="endpoint:"+endpoint_id)
                     flowrule_left.actions = []
-                    flowrule_left.actions.append(Action(output=output))        
-        
+                    flowrule_left.actions.append(Action(output=output))    
+                     
         #Delete obsolete parts from graphs
-        
+        marked_vnfs = None
+        marked_endpoints=None
         for element in right_list_original:
             if type(element) is VNF:
-                self.deleteVNFAndConnections(nffg_left, element)            
+                marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg_left, element, marked_vnfs, marked_endpoints)            
             elif type(element) is EndPoint:
-                self.deleteEndpointAndConnections(nffg_left, element.id)
+                marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg_left, element.id, marked_vnfs, marked_endpoints)
                 
+        marked_vnfs = None
+        marked_endpoints=None       
+        
         for element in left_list_original:
             if type(element) is VNF:
-                self.deleteVNFAndConnections(nffg_right, element)        
+                marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg_right, element, marked_vnfs, marked_endpoints)        
             elif type(element) is EndPoint:
-                self.deleteEndpointAndConnections(nffg_right, element.id)
+                marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg_right, element.id, marked_vnfs, marked_endpoints)
         
         return nffg_left, nffg_right
         
-    def deleteVNFAndConnections(self, nffg, vnf, marked_vnfs=[]):
+    def deleteVNFAndConnections(self, nffg, vnf, marked_vnfs=None, marked_endpoints=None):
         '''
-        Deletes the VNF and recursively connected VNFs and Endpoints. Note that marked_vnfs is mutable
+        Deletes the VNF and recursively connected VNFs and Endpoints.
         '''
+        marked_vnfs = marked_vnfs or []        
         if vnf.id not in marked_vnfs:
             marked_vnfs.append(vnf.id)
             for port in vnf.ports:
@@ -638,24 +643,26 @@ class NF_FG(object):
                     for action in flow.actions:
                         if action.output is not None:
                             if action.output.split(":")[0] == "vnf":
-                                self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]))
+                                marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]), marked_vnfs, marked_endpoints)
                                 break
                             elif action.output.split(":")[0] == "endpoint":
-                                self.deleteEndpointAndConnections(nffg, action.output.split(":")[1])
+                                marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg, action.output.split(":")[1], marked_vnfs, marked_endpoints)
                                 break
                 in_flows = nffg.deleteOutcomingFlowrules("vnf:"+vnf.id+":"+port.id)
                 for flow in in_flows:
                     if flow.match is not None and flow.match.port_in is not None:
                         if flow.match.port_in.split(":")[0] == "vnf":
-                            self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]))
+                            marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]), marked_vnfs, marked_endpoints)
                         elif flow.match.port_in.split(":")[0] == "endpoint":
-                            self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1])
+                            marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1], marked_vnfs, marked_endpoints)
             nffg.vnfs.remove(nffg.getVNF(vnf.id))
+        return marked_vnfs, marked_endpoints
 
-    def deleteEndpointAndConnections(self, nffg, endpoint_id, marked_endpoints=[]):
+    def deleteEndpointAndConnections(self, nffg, endpoint_id, marked_vnfs=None, marked_endpoints=None):
         '''
-        Deletes the Endpoint and recursively connected VNFs and Endpoints. Note that marked_endpoints is mutable
-        '''        
+        Deletes the Endpoint and recursively connected VNFs and Endpoints.
+        '''     
+        marked_endpoints = marked_endpoints or []
         if endpoint_id not in marked_endpoints:
             marked_endpoints.append(endpoint_id)
             out_flows = nffg.deleteIncomingFlowrules("endpoint:"+endpoint_id)
@@ -663,50 +670,59 @@ class NF_FG(object):
                 for action in flow.actions:
                     if action.output is not None:
                         if action.output.split(":")[0] == "vnf":
-                            self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]))
+                            marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]), marked_vnfs, marked_endpoints)
                             break
                         elif action.output.split(":")[0] == "endpoint":
-                            self.deleteEndpointAndConnections(nffg, action.output.split(":")[1])
+                            marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg, action.output.split(":")[1], marked_vnfs, marked_endpoints)
                             break
             in_flows = nffg.deleteOutcomingFlowrules("endpoint:"+endpoint_id)
             for flow in in_flows:
                 if flow.match is not None and flow.match.port_in is not None:
                     if flow.match.port_in.split(":")[0] == "vnf":
-                        self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]))
+                        marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]), marked_vnfs, marked_endpoints)
                     elif flow.match.port_in.split(":")[0] == "endpoint":
-                        self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1])
+                        marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1], marked_vnfs, marked_endpoints)
             nffg.end_points.remove(nffg.getEndPoint(endpoint_id))
+        return marked_vnfs, marked_endpoints
     
     def join(self, nffg_2):
         '''
         Merges two graphs that have been split previously. nffg_2 is left intact
         '''
         nffg_2 = copy.deepcopy(nffg_2)     
+        removed_endpoints = []
         #Search for flowrules split and join them
         for flowrule in self.flow_rules[:]:
             if flowrule.id[-2] == '_':
                 if flowrule.match is not None and flowrule.match.port_in is not None and flowrule.match.port_in.startswith("endpoint:autogenerated_split_"):
-                    #second part of flowrule
                     attaching_outgoing_flowrule = []
                     external_flowrule = nffg_2.getFlowRule(flowrule.id[:-1]+"1")
+                    if external_flowrule is None:
+                        continue
                     attaching_outgoing_flowrule.append(external_flowrule)
                     ingoing_flowrules = []
                     ingoing_flowrules.append(flowrule)
                     self.flow_rules =  self.flow_rules + self.mergeFlowrules(attaching_outgoing_flowrule, ingoing_flowrules, True)
                     self.flow_rules.remove(flowrule)
                     nffg_2.flow_rules.remove(external_flowrule)
+                    if flowrule.match.port_in.split(":")[1] not in removed_endpoints:
+                        removed_endpoints.append(flowrule.match.port_in.split(":")[1])
                 elif flowrule.actions is not None:
                     for action in flowrule.actions:
                         if action.output is not None and action.output.startswith("endpoint:autogenerated_split_"):
-                            #first part of flowrule
                             attaching_ingoing_flowrule = []
                             external_flowrule = nffg_2.getFlowRule(flowrule.id[:-1]+"2")
+                            if external_flowrule is None:
+                                continue
                             attaching_ingoing_flowrule.append(external_flowrule)
                             outgoing_flowrules = []
                             outgoing_flowrules.append(flowrule)
                             self.flow_rules =  self.flow_rules + self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrule, True)
                             self.flow_rules.remove(flowrule)
                             nffg_2.flow_rules.remove(external_flowrule)
+                            if action.output.split(":")[1] not in removed_endpoints:
+                                removed_endpoints.append(action.output.split(":")[1])
+
                             
         self.flow_rules = self.flow_rules + nffg_2.flow_rules
 
@@ -716,10 +732,9 @@ class NF_FG(object):
         
         # Add the end-points of the second graph
         for new_end_point in nffg_2.end_points:
-            if not new_end_point.id.startswith("autogenerated_split_"):
-                self.end_points.append(new_end_point)
+            self.end_points.append(new_end_point)
         for end_point in self.end_points[:]:
-            if end_point.id.startswith("autogenerated_split_"):
+            if end_point.id in removed_endpoints:
                 self.end_points.remove(end_point)
                         
     def deleteEndPointConnections(self, endpoint_id):
