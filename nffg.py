@@ -239,14 +239,21 @@ class NF_FG(object):
         self.end_points.remove(end_point)
         self.end_points.remove(attaching_end_point)
         
-    def mergeFlowrules(self, outgoing_flow_rules, ingoing_flow_rules):
+    def mergeFlowrules(self, outgoing_flow_rules, ingoing_flow_rules, maintain_id=False):
+        '''
+        if maintaind_id is True the flowrule_id is preserved (except last two chars). This parameter is used when graphs are joined
+        '''
         flowrules = []
         for outgoing_flow_rule in outgoing_flow_rules:
             for ingoing_flow_rule in ingoing_flow_rules:
                 final_match = self.mergeMatches(outgoing_flow_rule.match, ingoing_flow_rule.match)
                 if outgoing_flow_rule.match.port_in is not None:
                     final_match.port_in = outgoing_flow_rule.match.port_in
-                flowrules.append(FlowRule(_id=uuid.uuid4().hex, priority=ingoing_flow_rule.priority,
+                if maintain_id:
+                    flowrules.append(FlowRule(_id=ingoing_flow_rule.id[:-2], priority=ingoing_flow_rule.priority,
+                                           actions=ingoing_flow_rule.actions, match = final_match))
+                else:
+                    flowrules.append(FlowRule(_id=uuid.uuid4().hex, priority=ingoing_flow_rule.priority,
                                            actions=ingoing_flow_rule.actions, match = final_match))
         return flowrules    
     
@@ -415,6 +422,306 @@ class NF_FG(object):
         
         return nffg
     
+    def split(self, left_list, right_list):
+        '''
+        Splits a nffg adding endpoints and returns both subgraphs (left and right)
+        '''
+        nffg_left = copy.deepcopy(self)
+        left_list_original = copy.deepcopy(left_list)
+        right_list_original = copy.deepcopy(right_list)
+        
+        #debug purpose only
+        left_list_dict = []
+        right_list_dict = []
+
+        #Check if there are admissible elements in the lists
+        total_list = left_list + right_list
+        for element in total_list:
+            if type(element) is VNF:
+                if element not in self.vnfs:
+                    raise Exception("VNF not present in nffg")
+                if element in left_list:
+                    left_list_dict.append("vnf:"+element.id)
+                else:
+                    right_list_dict.append("vnf:"+element.id)              
+            elif type(element) is EndPoint:
+                if element not in self.end_points:
+                    raise Exception("EndPoint not present in nffg")
+                if element in left_list:
+                    left_list_dict.append("endpoint:"+element.id)
+                else:
+                    right_list_dict.append("endpoint:"+element.id)     
+            else:
+                raise TypeError()
+            
+        #print left_list_dict
+        #print right_list_dict
+        
+        #Check links to break
+        links = {}
+        left_flows = []
+        right_flows = []
+        for l_element in left_list:
+            #Endpoint
+            if type(l_element) is EndPoint:
+                flowrules = nffg_left.getFlowRulesSendingTrafficFromEndPoint(l_element.id)
+                for flowrule in flowrules:
+                    for action in flowrule.actions:
+                        if action.output is not None:
+                            if action.output.split(":")[0] == 'endpoint':
+                                for r_element in right_list:
+                                    if type(r_element) is EndPoint and r_element.id == action.output.split(":")[1]:
+                                        if flowrule.match.port_in not in links:
+                                            links[flowrule.match.port_in] = []
+                                        links[flowrule.match.port_in].append(action.output)
+                                        if flowrule.id not in left_flows:
+                                            left_flows.append(flowrule.id)
+                                        break
+                            elif action.output.split(":")[0] == 'vnf':
+                                for r_element in right_list:
+                                    #action.output is vnf:vnf_id:port_id
+                                    if type(r_element) is VNF and r_element.id == action.output.split(":")[1]:
+                                        if flowrule.match.port_in not in links:
+                                            links[flowrule.match.port_in] = []
+                                        links[flowrule.match.port_in].append(action.output)
+                                        if flowrule.id not in left_flows:
+                                            left_flows.append(flowrule.id)
+                                        break
+                # Check flowrules sending traffic to this endpoint
+                flowrules = nffg_left.getFlowRulesSendingTrafficToEndPoint(l_element.id)
+                for flowrule in flowrules:
+                    if flowrule.match is not None and flowrule.match.port_in is not None:
+                        if flowrule.match.port_in.split(":")[0] == 'endpoint':
+                            for r_element in right_list:
+                                if type(r_element) is EndPoint and flowrule.match.port_in.split(":")[1] == r_element.id:
+                                    if flowrule.match.port_in not in links:
+                                        links[flowrule.match.port_in] = []
+                                    links[flowrule.match.port_in].append("endpoint:"+l_element.id)
+                                    if flowrule.id not in right_flows:
+                                        right_flows.append(flowrule.id)
+                                    break  
+                        elif flowrule.match.port_in.split(":")[0] == 'vnf':
+                            for r_element in right_list:
+                                if type(r_element) is VNF and flowrule.match.port_in.split(":")[1] == r_element.id:
+                                    if flowrule.match.port_in not in links:
+                                        links[flowrule.match.port_in] = []
+                                    links[flowrule.match.port_in].append("endpoint:"+l_element.id)
+                                    if flowrule.id not in right_flows:
+                                        right_flows.append(flowrule.id)
+                                    break
+            #VNF                        
+            if type(l_element) is VNF:
+                flowrules = nffg_left.getFlowRulesSendingTrafficFromVNF(l_element)
+                for flowrule in flowrules:
+                    for action in flowrule.actions:
+                        if action.output is not None:
+                            if action.output.split(":")[0] == 'endpoint':
+                                for r_element in right_list:
+                                    if type(r_element) is EndPoint and r_element.id == action.output.split(":")[1]:
+                                        if flowrule.match.port_in not in links:
+                                            links[flowrule.match.port_in] = []
+                                        links[flowrule.match.port_in].append(action.output)
+                                        if flowrule.id not in left_flows:
+                                            left_flows.append(flowrule.id)
+                                        break
+                            elif action.output.split(":")[0] == 'vnf':
+                                for r_element in right_list:
+                                    #action.output is vnf:vnf_id:port_id
+                                    if type(r_element) is VNF and r_element.id == action.output.split(":")[1]:
+                                        if flowrule.match.port_in not in links:
+                                            links[flowrule.match.port_in] = []
+                                        links[flowrule.match.port_in].append(action.output)
+                                        if flowrule.id not in left_flows:
+                                            left_flows.append(flowrule.id)
+                                        break
+                # Check flowrules sending traffic to this vnf                       
+                flowrules = nffg_left.getFlowRulesSendingTrafficToVNF(l_element)
+                for flowrule in flowrules:
+                    if flowrule.match is not None and flowrule.match.port_in is not None:
+                        if flowrule.match.port_in.split(":")[0] == 'endpoint':
+                            for r_element in right_list:
+                                if type(r_element) is EndPoint and flowrule.match.port_in.split(":")[1] == r_element.id:
+                                    if flowrule.match.port_in not in links:
+                                        links[flowrule.match.port_in] = []
+                                    for action in flowrule.actions:
+                                        if action.output is not None and action.output.split(":")[1] == l_element.id:
+                                            links[flowrule.match.port_in].append(action.output)
+                                    if flowrule.id not in right_flows:
+                                        right_flows.append(flowrule.id)
+                                    break  
+                        elif flowrule.match.port_in.split(":")[0] == 'vnf':
+                            for r_element in right_list:
+                                if type(r_element) is VNF and flowrule.match.port_in.split(":")[1] == r_element.id:
+                                    if flowrule.match.port_in not in links:
+                                        links[flowrule.match.port_in] = []
+                                    for action in flowrule.actions:
+                                        if action.output is not None and action.output.split(":")[1] == l_element.id:
+                                            links[flowrule.match.port_in].append(action.output)
+                                    if flowrule.id not in right_flows:
+                                        right_flows.append(flowrule.id)
+                                    break  
+            
+        #print links
+        #print left_flows
+        #print right_flows
+        
+        #Break links and create endpoints
+        nffg_right = copy.deepcopy(nffg_left)
+        #Link already split pointing to endpoint_id of generated endpoint
+        link_split = {}
+        
+        for flow_id in left_flows:
+            flowrule = nffg_left.getFlowRule(flow_id)
+            for action in flowrule.actions:
+                if action.output is not None and action.output in links[flowrule.match.port_in]:
+                    #TODO: multiple output actions to be split not supported
+                    endpoint_id = "autogenerated_split_"+flow_id
+                    link_split[flowrule.match.port_in+"<->"+action.output] = endpoint_id
+                    flowrule_left = flowrule
+                    output = action.output
+                    action.output = "endpoint:"+endpoint_id
+                    flowrule_left.id = flow_id+"_1"
+                    ep1 = EndPoint(_id=endpoint_id,_type="internal")
+                    nffg_left.addEndPoint(ep1)
+                    #Right graph
+                    flowrule_2 = nffg_right.getFlowRule(flow_id)
+                    flowrule_2.id = flow_id+"_2"
+                    flowrule_2.match = Match(port_in="endpoint:"+endpoint_id)
+                    flowrule_2.actions = []
+                    flowrule_2.actions.append(Action(output=output))
+                    ep2 = EndPoint(_id=endpoint_id,_type="internal")
+                    nffg_right.addEndPoint(ep2)
+                
+        for flow_id in right_flows:
+            flowrule = nffg_right.getFlowRule(flow_id)
+            for action in flowrule.actions:
+                if action.output is not None and action.output in links[flowrule.match.port_in]:
+                    flowrule_right = flowrule
+                    output = action.output
+                    if action.output+"<->"+flowrule.match.port_in not in link_split:
+                        link_split[action.output+"<->"+flowrule.match.port_in] = "autogenerated_split_"+flow_id
+                    endpoint_id = link_split[action.output+"<->"+flowrule.match.port_in]
+                    action.output = "endpoint:"+endpoint_id
+                    flowrule_right.id = flow_id+"_1"
+                    #Left graph
+                    flowrule_left = nffg_left.getFlowRule(flow_id)
+                    flowrule_left.id = flow_id+"_2"
+                    flowrule_left.match = Match(port_in="endpoint:"+endpoint_id)
+                    flowrule_left.actions = []
+                    flowrule_left.actions.append(Action(output=output))        
+        
+        #Delete obsolete parts from graphs
+        
+        for element in right_list_original:
+            if type(element) is VNF:
+                self.deleteVNFAndConnections(nffg_left, element)            
+            elif type(element) is EndPoint:
+                self.deleteEndpointAndConnections(nffg_left, element.id)
+                
+        for element in left_list_original:
+            if type(element) is VNF:
+                self.deleteVNFAndConnections(nffg_right, element)        
+            elif type(element) is EndPoint:
+                self.deleteEndpointAndConnections(nffg_right, element.id)
+        
+        return nffg_left, nffg_right
+        
+    def deleteVNFAndConnections(self, nffg, vnf, marked_vnfs=[]):
+        '''
+        Deletes the VNF and recursively connected VNFs and Endpoints. Note that marked_vnfs is mutable
+        '''
+        if vnf.id not in marked_vnfs:
+            marked_vnfs.append(vnf.id)
+            for port in vnf.ports:
+                out_flows = nffg.deleteIncomingFlowrules("vnf:"+vnf.id+":"+port.id)
+                for flow in out_flows:
+                    for action in flow.actions:
+                        if action.output is not None:
+                            if action.output.split(":")[0] == "vnf":
+                                self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]))
+                                break
+                            elif action.output.split(":")[0] == "endpoint":
+                                self.deleteEndpointAndConnections(nffg, action.output.split(":")[1])
+                                break
+                in_flows = nffg.deleteOutcomingFlowrules("vnf:"+vnf.id+":"+port.id)
+                for flow in in_flows:
+                    if flow.match is not None and flow.match.port_in is not None:
+                        if flow.match.port_in.split(":")[0] == "vnf":
+                            self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]))
+                        elif flow.match.port_in.split(":")[0] == "endpoint":
+                            self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1])
+            nffg.vnfs.remove(nffg.getVNF(vnf.id))
+
+    def deleteEndpointAndConnections(self, nffg, endpoint_id, marked_endpoints=[]):
+        '''
+        Deletes the Endpoint and recursively connected VNFs and Endpoints. Note that marked_endpoints is mutable
+        '''        
+        if endpoint_id not in marked_endpoints:
+            marked_endpoints.append(endpoint_id)
+            out_flows = nffg.deleteIncomingFlowrules("endpoint:"+endpoint_id)
+            for flow in out_flows:
+                for action in flow.actions:
+                    if action.output is not None:
+                        if action.output.split(":")[0] == "vnf":
+                            self.deleteVNFAndConnections(nffg, nffg.getVNF(action.output.split(":")[1]))
+                            break
+                        elif action.output.split(":")[0] == "endpoint":
+                            self.deleteEndpointAndConnections(nffg, action.output.split(":")[1])
+                            break
+            in_flows = nffg.deleteOutcomingFlowrules("endpoint:"+endpoint_id)
+            for flow in in_flows:
+                if flow.match is not None and flow.match.port_in is not None:
+                    if flow.match.port_in.split(":")[0] == "vnf":
+                        self.deleteVNFAndConnections(nffg, nffg.getVNF(flow.match.port_in.split(":")[1]))
+                    elif flow.match.port_in.split(":")[0] == "endpoint":
+                        self.deleteEndpointAndConnections(nffg, flow.match.port_in.split(":")[1])
+            nffg.end_points.remove(nffg.getEndPoint(endpoint_id))
+    
+    def join(self, nffg_2):
+        '''
+        Merges two graphs that have been split previously. nffg_2 is left intact
+        '''
+        nffg_2 = copy.deepcopy(nffg_2)     
+        #Search for flowrules split and join them
+        for flowrule in self.flow_rules[:]:
+            if flowrule.id[-2] == '_':
+                if flowrule.match is not None and flowrule.match.port_in is not None and flowrule.match.port_in.startswith("endpoint:autogenerated_split_"):
+                    #second part of flowrule
+                    attaching_outgoing_flowrule = []
+                    external_flowrule = nffg_2.getFlowRule(flowrule.id[:-1]+"1")
+                    attaching_outgoing_flowrule.append(external_flowrule)
+                    ingoing_flowrules = []
+                    ingoing_flowrules.append(flowrule)
+                    self.flow_rules =  self.flow_rules + self.mergeFlowrules(attaching_outgoing_flowrule, ingoing_flowrules, True)
+                    self.flow_rules.remove(flowrule)
+                    nffg_2.flow_rules.remove(external_flowrule)
+                elif flowrule.actions is not None:
+                    for action in flowrule.actions:
+                        if action.output is not None and action.output.startswith("endpoint:autogenerated_split_"):
+                            #first part of flowrule
+                            attaching_ingoing_flowrule = []
+                            external_flowrule = nffg_2.getFlowRule(flowrule.id[:-1]+"2")
+                            attaching_ingoing_flowrule.append(external_flowrule)
+                            outgoing_flowrules = []
+                            outgoing_flowrules.append(flowrule)
+                            self.flow_rules =  self.flow_rules + self.mergeFlowrules(outgoing_flowrules, attaching_ingoing_flowrule, True)
+                            self.flow_rules.remove(flowrule)
+                            nffg_2.flow_rules.remove(external_flowrule)
+                            
+        self.flow_rules = self.flow_rules + nffg_2.flow_rules
+
+        # Add the VNFs of the second graph
+        for new_vnf in nffg_2.vnfs:
+            self.vnfs.append(new_vnf)
+        
+        # Add the end-points of the second graph
+        for new_end_point in nffg_2.end_points:
+            if not new_end_point.id.startswith("autogenerated_split_"):
+                self.end_points.append(new_end_point)
+        for end_point in self.end_points[:]:
+            if end_point.id.startswith("autogenerated_split_"):
+                self.end_points.remove(end_point)
+                        
     def deleteEndPointConnections(self, endpoint_id):
         return self.deleteConnections("endpoint:"+endpoint_id)
     
