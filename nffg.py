@@ -4,8 +4,7 @@ Created on Oct 14, 2015
 @author: fabiomignini
 '''
 import sys, uuid, json, copy, collections
-from exception import InexistentLabelFound, WrongNumberOfPorts
-from validator import ValidateNF_FG
+from .exception import InexistentLabelFound, WrongNumberOfPorts
 
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
@@ -863,12 +862,12 @@ class VNF(object):
                 labels[port.id.split(':')[0]] = 1
         
         
-        for label, num_ports_per_label in labels.iteritems():
+        for (label, num_ports_per_label) in labels.items():
             found = False
             for template_port in self.template.ports:
                 if label == template_port.label:
                     if template_port.position.split('-')[1] == 'N' or template_port.position.split('-')[1] == 'n':
-                        maximum_number_of_ports_per_label = sys.maxint
+                        maximum_number_of_ports_per_label = sys.maxsize
                     else:
                         maximum_number_of_ports_per_label = int(template_port.position.split('-')[1]) - int(template_port.position.split('-')[0]) + 1
                     minimum_number_of_ports_per_label = int(template_port.min)
