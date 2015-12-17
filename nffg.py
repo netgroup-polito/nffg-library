@@ -9,9 +9,10 @@ from .exception import InexistentLabelFound, WrongNumberOfPorts
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
                  vnfs = None, end_points = None,
-                 flow_rules = None):
+                 flow_rules = None, description = None):
         self.id = _id
         self.name = name
+        self.description = description
         self.vnfs = vnfs or []
         self.end_points = end_points or []
         self.flow_rules = flow_rules or []
@@ -20,6 +21,8 @@ class NF_FG(object):
         self.id = nffg_dict['forwarding-graph']['id']
         if 'name' in nffg_dict['forwarding-graph']:
             self.name = nffg_dict['forwarding-graph']['name']
+        if 'description' in nffg_dict['forwarding-graph']:
+            self.description = nffg_dict['forwarding-graph']['description']
         if 'VNFs' in nffg_dict['forwarding-graph']:
             for vnf_dict in nffg_dict['forwarding-graph']['VNFs']:
                 vnf = VNF()
@@ -44,6 +47,8 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['id'] = self.id 
         if self.name is not None:
             nffg_dict['forwarding-graph']['name'] = self.name
+        if self.description is not None:
+            nffg_dict['forwarding-graph']['description'] = self.description
         vnfs_dict = []
         for vnf in self.vnfs:
             vnfs_dict.append(vnf.getDict(extended))
@@ -1070,8 +1075,10 @@ class EndPoint(object):
 class FlowRule(object):
     def __init__(self, _id = None, priority = None,
                  match = None, actions = None, status = None,
-                 db_id = None, internal_id = None, _type = None, node_id = None):
+                 db_id = None, internal_id = None, _type = None,
+                 node_id = None, description = None):
         self.id = _id
+        self.description = description
         self.priority = priority
         self.match = match
         self.actions = actions or []
@@ -1083,6 +1090,8 @@ class FlowRule(object):
     
     def parseDict(self, flow_rule_dict):
         self.id = flow_rule_dict['id']
+        if 'description' in flow_rule_dict:
+            self.description = flow_rule_dict['description']
         self.priority = flow_rule_dict['priority']
         match = Match()
         match.parseDict(flow_rule_dict['match'])
@@ -1096,6 +1105,8 @@ class FlowRule(object):
         flow_rule_dict = {}
         if self.id is not None:
             flow_rule_dict['id'] = self.id
+        if self.description is not None:
+            flow_rule_dict['description'] = self.description
         if self.priority is not None:
             flow_rule_dict['priority'] = self.priority
         if self.match is not None:
