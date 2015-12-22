@@ -942,7 +942,7 @@ class Port(object):
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
-                 remote_endpoint_id = None, node = None, switch_id = None,
+                 remote_endpoint_id = None, node_id = None, switch_id = None,
                  interface = None, remote_ip = None, local_ip = None, ttl = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, 
@@ -970,7 +970,7 @@ class EndPoint(object):
         prepare_connection_to_remote_endpoint_id : string
             Is a field for the auto-generate 1 to 1 end-point (in the end-point switch model), and identifies
             the remote end-points where this end-point will be connected.
-        node : string
+        node_id : string
            Optional field. Its meaning depends on the value of field _type
         switch_id : string
            Optional field. Its meaning depends on the value of field _type
@@ -987,7 +987,7 @@ class EndPoint(object):
         self.name = name
         self.type = _type
         self.remote_endpoint_id = remote_endpoint_id
-        self.node = node
+        self.node_id = node_id
         self.switch_id = switch_id
         self.interface = interface
         self.remote_ip = remote_ip
@@ -1013,8 +1013,8 @@ class EndPoint(object):
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
                 self.interface = end_point_dict[self.type]['interface']
-                if 'node' in end_point_dict[self.type]:
-                    self.node = end_point_dict[self.type]['node']
+                if 'node_id' in end_point_dict[self.type]:
+                    self.node_id = end_point_dict[self.type]['node_id']
                 if 'switch-id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch-id']
             elif self.type == 'gre-tunnel':
@@ -1026,8 +1026,8 @@ class EndPoint(object):
             elif self.type == 'vlan':
                 self.interface = end_point_dict[self.type]['interface']
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
-                if 'node' in end_point_dict[self.type]:
-                    self.node = end_point_dict[self.type]['node']
+                if 'node_id' in end_point_dict[self.type]:
+                    self.node_id = end_point_dict[self.type]['node_id']
                 if 'switch-id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch-id']
          
@@ -1047,8 +1047,8 @@ class EndPoint(object):
             end_point_dict['type'] = self.type
             if self.type != 'internal' and self.type != 'shadow':
                 end_point_dict[self.type] = {}
-                if self.node is not None:
-                    end_point_dict[self.type]['node'] = self.node
+                if self.node_id is not None:
+                    end_point_dict[self.type]['node_id'] = self.node_id
                 if self.switch_id is not None:
                     end_point_dict[self.type]['switch-id'] = self.switch_id     
                 if self.interface is not None:

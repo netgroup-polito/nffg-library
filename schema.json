@@ -5,7 +5,7 @@
     "interface": {
       "type": "object",
       "properties": {
-        "node": {
+        "node_id": {
           "type": "string"
         },
         "switch-id": {
@@ -55,7 +55,7 @@
         "switch-id": {
           "type": "string"
         },
-        "node": {
+        "node_id": {
           "type": "string"
         }
       },
