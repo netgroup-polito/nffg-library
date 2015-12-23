@@ -943,7 +943,7 @@ class Port(object):
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
                  remote_endpoint_id = None, node_id = None, switch_id = None,
-                 interface = None, remote_ip = None, local_ip = None, ttl = None,
+                 interface = None, remote_ip = None, local_ip = None, gre_key = None, ttl = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, 
                  prepare_connection_to_remote_endpoint_id = None,
@@ -980,8 +980,10 @@ class EndPoint(object):
            Optional field. Its meaning depends on the value of field _type
         local_ip : string
            Optional field. Its meaning depends on the value of field _type
+        gre_key : string
+           Optional field. Its meaning depends on the value of field _type            
         ttl : string
-           Optional field. Its meaning depends on the value of field _type
+           Optional field. Its meaning depends on the value of field _type          
         '''
         self.id = _id
         self.name = name
@@ -992,6 +994,7 @@ class EndPoint(object):
         self.interface = interface
         self.remote_ip = remote_ip
         self.local_ip = local_ip
+        self.gre_key = gre_key
         self.ttl = ttl
         self.vlan_id = vlan_id
         self.status = status
@@ -1013,21 +1016,22 @@ class EndPoint(object):
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
                 self.interface = end_point_dict[self.type]['interface']
-                if 'node_id' in end_point_dict[self.type]:
-                    self.node_id = end_point_dict[self.type]['node_id']
+                if 'node-id' in end_point_dict[self.type]:
+                    self.node_id = end_point_dict[self.type]['node-id']
                 if 'switch-id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch-id']
             elif self.type == 'gre-tunnel':
-                self.remote_ip = end_point_dict[self.type]['remote_ip']
-                self.local_ip = end_point_dict[self.type]['local_ip']
+                self.remote_ip = end_point_dict[self.type]['remote-ip']
+                self.local_ip = end_point_dict[self.type]['local-ip']
                 self.interface = end_point_dict[self.type]['interface']
+                self.gre_key = end_point_dict[self.type]['gre-key']                
                 if 'ttl' in end_point_dict[self.type]:
                     self.ttl = end_point_dict[self.type]['ttl']   
             elif self.type == 'vlan':
                 self.interface = end_point_dict[self.type]['interface']
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
-                if 'node_id' in end_point_dict[self.type]:
-                    self.node_id = end_point_dict[self.type]['node_id']
+                if 'node-id' in end_point_dict[self.type]:
+                    self.node_id = end_point_dict[self.type]['node-id']
                 if 'switch-id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch-id']
          
@@ -1048,15 +1052,17 @@ class EndPoint(object):
             if self.type != 'internal' and self.type != 'shadow':
                 end_point_dict[self.type] = {}
                 if self.node_id is not None:
-                    end_point_dict[self.type]['node_id'] = self.node_id
+                    end_point_dict[self.type]['node-id'] = self.node_id
                 if self.switch_id is not None:
                     end_point_dict[self.type]['switch-id'] = self.switch_id     
                 if self.interface is not None:
                     end_point_dict[self.type]['interface'] = self.interface
                 if self.remote_ip is not None:
-                    end_point_dict[self.type]['remote_ip'] = self.remote_ip  
+                    end_point_dict[self.type]['remote-ip'] = self.remote_ip  
                 if self.local_ip is not None:
-                    end_point_dict[self.type]['local_ip'] = self.local_ip     
+                    end_point_dict[self.type]['local-ip'] = self.local_ip     
+                if self.gre_key is not None:
+                    end_point_dict[self.type]['gre-key'] = self.gre_key                   
                 if self.ttl is not None:
                     end_point_dict[self.type]['ttl'] = self.ttl
                 if self.vlan_id is not None:

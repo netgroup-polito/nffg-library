@@ -5,7 +5,7 @@
     "interface": {
       "type": "object",
       "properties": {
-        "node_id": {
+        "node-id": {
           "type": "string"
         },
         "switch-id": {
@@ -34,12 +34,16 @@
         },
         "ttl": {
           "type": "string"
-        }
+        },
+        "gre-key": {
+          "type": "string"
+        }        
       },
       "required": [
         "interface",
         "remote-ip",
-        "local-ip"
+        "local-ip",
+        "gre-key"
       ],
       "additionalProperties": false
     },
@@ -55,7 +59,7 @@
         "switch-id": {
           "type": "string"
         },
-        "node_id": {
+        "node-id": {
           "type": "string"
         }
       },
