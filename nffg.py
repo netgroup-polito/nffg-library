@@ -1243,7 +1243,7 @@ class Match(object):
 
 class Action(object):
     def __init__(self, output = None, controller = False, drop=False, set_vlan_id = None,
-                 set_vlan_priority = None, pop_vlan = None,
+                 set_vlan_priority = None, pop_vlan = False,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
                  set_ip_tos = None, set_l4_src_port=None,
@@ -1322,7 +1322,7 @@ class Action(object):
             action_dict['set_vlan_id'] = self.set_vlan_id
         if self.set_vlan_priority is not None:
             action_dict['set_vlan_priority'] = self.set_vlan_priority  
-        if self.pop_vlan is not None:
+        if self.pop_vlan is not False:
             action_dict['pop_vlan'] = self.pop_vlan  
         if self.set_ethernet_src_address is not None:
             action_dict['set_ethernet_src_address'] = self.set_ethernet_src_address  
