@@ -127,7 +127,7 @@
           "type": "string"
         },
         "pop_vlan": {
-          "type": "string"
+          "type": "boolean"
         },
         "set_ethernet_src_address": {
           "type": "string"
@@ -152,6 +152,12 @@
         },
         "output_to_queue": {
           "type": "string"
+        },
+        "drop": {
+          "type": "boolean"
+        },
+        "controller": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
