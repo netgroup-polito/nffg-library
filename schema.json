@@ -123,7 +123,7 @@
         "set_vlan_id": {
           "type": "string"
         },
-        "set_vlan_priority-id": {
+        "set_vlan_priority": {
           "type": "string"
         },
         "push_vlan": {
