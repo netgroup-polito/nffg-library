@@ -40,7 +40,7 @@ Create a new graph that directly connects two endpoints.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         },
@@ -52,7 +52,7 @@ Create a new graph that directly connects two endpoints.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         }
@@ -71,13 +71,13 @@ Create a new graph that directly connects two endpoints.
   },
   "actions": [
     {
-      "output": "endpoint:00000001"
+      "output_to_port": "endpoint:00000001"
     },
     {
-      "output": "endpoint:00000003"
+      "output_to_port": "endpoint:00000003"
     },
     {
-      "controller": true
+      "output_to_controller": true
     }
   ]
 }
@@ -131,7 +131,7 @@ Create a new graph that directly connects two endpoints.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         },
@@ -143,7 +143,7 @@ Create a new graph that directly connects two endpoints.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         }
@@ -193,7 +193,7 @@ Create a graph of VNF not connected with the outside world.
           },
           "actions": [
             {
-              "output": "vnf:00000002:inout:0"
+              "output_to_port": "vnf:00000002:inout:0"
             }
           ]
         },
@@ -205,7 +205,7 @@ Create a graph of VNF not connected with the outside world.
           },
           "actions": [
             {
-              "output": "vnf:00000001:inout:0"
+              "output_to_port": "vnf:00000001:inout:0"
             }
           ]
         }
@@ -269,7 +269,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:User:0"
+              "output_to_port": "vnf:00000001:User:0"
             }
           ]
         },
@@ -281,7 +281,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         },
@@ -293,7 +293,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         },
@@ -305,7 +305,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:WAN:0"
+              "output_to_port": "vnf:00000001:WAN:0"
             }
           ]
         }
@@ -386,7 +386,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:User:0"
+              "output_to_port": "vnf:00000001:User:0"
             }
           ]
         },
@@ -398,7 +398,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         },
@@ -410,7 +410,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000002:User:0"
+              "output_to_port": "vnf:00000002:User:0"
             }
           ]
         },
@@ -422,7 +422,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         },
@@ -434,7 +434,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         },
@@ -446,7 +446,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         },
@@ -458,7 +458,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000002:User:0"
+              "output_to_port": "vnf:00000002:User:0"
             }
           ]
         }
@@ -570,7 +570,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:L2Port:0"
+              "output_to_port": "vnf:00000001:L2Port:0"
             }
           ]
         },
@@ -582,7 +582,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000001"
+              "output_to_port": "endpoint:00000001"
             }
           ]
         },
@@ -594,7 +594,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:L2Port:1"
+              "output_to_port": "vnf:00000001:L2Port:1"
             }
           ]
         },
@@ -606,7 +606,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000002:inout:0"
+              "output_to_port": "vnf:00000002:inout:0"
             }
           ]
         },
@@ -618,7 +618,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000001:L2Port:2"
+              "output_to_port": "vnf:00000001:L2Port:2"
             }
           ]
         },
@@ -630,7 +630,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000003:User:0"
+              "output_to_port": "vnf:00000003:User:0"
             }
           ]
         },
@@ -642,7 +642,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000004:User:0"
+              "output_to_port": "vnf:00000004:User:0"
             }
           ]
         },
@@ -654,7 +654,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000003:WAN:0"
+              "output_to_port": "vnf:00000003:WAN:0"
             }
           ]
         },
@@ -666,7 +666,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "vnf:00000004:WAN:0"
+              "output_to_port": "vnf:00000004:WAN:0"
             }
           ]
         },
@@ -678,7 +678,7 @@ Create a graph with end-points and VNFs.
           },
           "actions": [
             {
-              "output": "endpoint:00000002"
+              "output_to_port": "endpoint:00000002"
             }
           ]
         }

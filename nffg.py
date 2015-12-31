@@ -1243,7 +1243,7 @@ class Match(object):
 
 class Action(object):
     def __init__(self, output = None, controller = False, drop=False, set_vlan_id = None,
-                 set_vlan_priority = None, pop_vlan = False,
+                 set_vlan_priority = None, push_vlan = None, pop_vlan = False,
                  set_ethernet_src_address = None, set_ethernet_dst_address= None,
                  set_ip_src_address = None, set_ip_dst_address= None,
                  set_ip_tos = None, set_l4_src_port=None,
@@ -1269,6 +1269,7 @@ class Action(object):
         self.drop = drop
         self.set_vlan_id = set_vlan_id
         self.set_vlan_priority = set_vlan_priority
+        self.push_vlan = push_vlan
         self.pop_vlan = pop_vlan
         self.set_ethernet_src_address = set_ethernet_src_address
         self.set_ethernet_dst_address = set_ethernet_dst_address
@@ -1281,16 +1282,18 @@ class Action(object):
         self.db_id = db_id
         
     def parseDict(self, action_dict):
-        if 'output' in action_dict:
-            self.output = action_dict['output']
-        if 'controller' in action_dict:
-            self.controller = action_dict['controller']
+        if 'output_to_port' in action_dict:
+            self.output = action_dict['output_to_port']
+        if 'output_to_controller' in action_dict:
+            self.controller = action_dict['output_to_controller']
         if 'drop' in action_dict:
             self.drop = action_dict['drop']
         if 'set_vlan_id' in action_dict:
             self.set_vlan_id = action_dict['set_vlan_id']
         if 'set_vlan_priority' in action_dict:
             self.set_vlan_priority = action_dict['set_vlan_priority']
+        if 'push_vlan' in action_dict:
+            self.set_vlan_priority = action_dict['push_vlan']            
         if 'pop_vlan' in action_dict:
             self.pop_vlan = action_dict['pop_vlan']         
         if 'set_ethernet_src_address' in action_dict:
@@ -1313,15 +1316,17 @@ class Action(object):
     def getDict(self, extended = False):
         action_dict = {}      
         if self.output is not None:
-            action_dict['output'] = self.output  
+            action_dict['output_to_port'] = self.output  
         if self.controller is not False:
-            action_dict['controller'] = self.controller  
+            action_dict['output_to_controller'] = self.controller  
         if self.drop is not False:
             action_dict['drop'] = self.drop  
         if self.set_vlan_id is not None:
             action_dict['set_vlan_id'] = self.set_vlan_id
         if self.set_vlan_priority is not None:
             action_dict['set_vlan_priority'] = self.set_vlan_priority  
+        if self.push_vlan is not None:
+            action_dict['push_vlan'] = self.push_vlan              
         if self.pop_vlan is not False:
             action_dict['pop_vlan'] = self.pop_vlan  
         if self.set_ethernet_src_address is not None:

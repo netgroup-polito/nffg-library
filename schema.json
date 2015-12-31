@@ -117,13 +117,16 @@
     "action": {
       "type": "object",
       "properties": {
-        "output": {
+        "output_to_port": {
           "type": "string"
         },
         "set_vlan_id": {
           "type": "string"
         },
         "set_vlan_priority-id": {
+          "type": "string"
+        },
+        "push_vlan": {
           "type": "string"
         },
         "pop_vlan": {
@@ -156,7 +159,7 @@
         "drop": {
           "type": "boolean"
         },
-        "controller": {
+        "output_to_controller": {
           "type": "boolean"
         }
       },
