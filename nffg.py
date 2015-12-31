@@ -1293,7 +1293,7 @@ class Action(object):
         if 'set_vlan_priority' in action_dict:
             self.set_vlan_priority = action_dict['set_vlan_priority']
         if 'push_vlan' in action_dict:
-            self.set_vlan_priority = action_dict['push_vlan']            
+            self.push_vlan = action_dict['push_vlan']            
         if 'pop_vlan' in action_dict:
             self.pop_vlan = action_dict['pop_vlan']         
         if 'set_ethernet_src_address' in action_dict:
