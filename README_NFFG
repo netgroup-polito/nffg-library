@@ -60,8 +60,8 @@ Create a new graph that directly connects two endpoints.
     }
   }
  }
+ 
  * It is also possible to have more than one action in a flow-rule
-
 
 {
   "id": "00000002",
@@ -97,6 +97,63 @@ Create a new graph that directly connects two endpoints.
   ]
 }
 
+ * The graph outputs traffic coming from the interface eth0 of a node identified by IP address 10.0.0.1 to the interface eth1 of the same node using the VLAN tag 123  
+ 
+{
+  "forwarding-graph": {
+    "id": "00000001",
+    "name": "Only network graph",
+    "end-points": [
+      {
+        "id": "00000001",
+        "name": "ingress",
+        "type": "interface",
+        "interface": {
+          "node": "10.0.0.1",
+          "interface": "eth0"
+        }
+      },
+      {
+        "id": "00000002",
+        "name": "egress",
+        "type": "vlan",
+        "vlan": {
+          "vlan-id": "123",
+          "node-id": "10.0.0.1",
+          "interface": "eth1"
+        }
+      }
+    ],
+    "big-switch": {
+      "flow-rules": [
+        {
+          "id": "000000001",
+          "priority": 1,
+          "match": {
+            "port_in": "endpoint:00000001"
+          },
+          "actions": [
+            {
+              "output_to_port": "endpoint:00000002"
+            }
+          ]
+        },
+        {
+          "id": "000000002",
+          "priority": 1,
+          "match": {
+            "port_in": "endpoint:00000002"
+          },
+          "actions": [
+            {
+              "output_to_port": "endpoint:00000001"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
 
  * The graph connects the interface 300 in the switch openflow:110953238266560 of node identified by ip address 10.0.0.1 with the end-point external_endpoint_1 of the graph external_graph_2
 
