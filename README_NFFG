@@ -109,7 +109,7 @@ Create a new graph that directly connects two endpoints.
         "name": "ingress",
         "type": "interface",
         "interface": {
-          "node": "10.0.0.1",
+          "node-id": "10.0.0.1",
           "interface": "eth0"
         }
       },
