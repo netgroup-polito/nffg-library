@@ -179,6 +179,9 @@
         "description": {
           "type": "string"
         },
+        "domain": {
+          "type": "string"
+        },
         "VNFs": {
           "type": "array",
           "items": {

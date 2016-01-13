@@ -9,16 +9,19 @@ from .exception import InexistentLabelFound, WrongNumberOfPorts
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
                  vnfs = None, end_points = None,
-                 flow_rules = None, description = None):
+                 flow_rules = None, description = None, domain=None):
         self.id = _id
         self.name = name
         self.description = description
         self.vnfs = vnfs or []
         self.end_points = end_points or []
         self.flow_rules = flow_rules or []
+        self.domain = domain
     
     def parseDict(self, nffg_dict):
         self.id = nffg_dict['forwarding-graph']['id']
+        if 'domain' in nffg_dict['forwarding-graph']:
+            self.domain = nffg_dict['forwarding-graph']['domain']
         if 'name' in nffg_dict['forwarding-graph']:
             self.name = nffg_dict['forwarding-graph']['name']
         if 'description' in nffg_dict['forwarding-graph']:
@@ -49,6 +52,8 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['name'] = self.name
         if self.description is not None:
             nffg_dict['forwarding-graph']['description'] = self.description
+        if self.domain is not None:
+            nffg_dict['forwarding-graph']['domain'] = self.domain  
         vnfs_dict = []
         for vnf in self.vnfs:
             vnfs_dict.append(vnf.getDict(extended))
