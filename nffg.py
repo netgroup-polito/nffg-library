@@ -52,8 +52,6 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['name'] = self.name
         if self.description is not None:
             nffg_dict['forwarding-graph']['description'] = self.description
-        if self.domain is not None:
-            nffg_dict['forwarding-graph']['domain'] = self.domain  
         vnfs_dict = []
         for vnf in self.vnfs:
             vnfs_dict.append(vnf.getDict(extended))
@@ -70,6 +68,9 @@ class NF_FG(object):
         if flow_rules_dict:
             nffg_dict['forwarding-graph']['big-switch'] = {}
             nffg_dict['forwarding-graph']['big-switch']['flow-rules'] = flow_rules_dict
+        if extended is True:
+            if self.domain is not None:
+                nffg_dict['forwarding-graph']['domain'] = self.domain
         return nffg_dict
     
     def getJSON(self, extended = False):
