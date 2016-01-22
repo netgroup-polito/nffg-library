@@ -37,7 +37,7 @@
         },
         "gre-key": {
           "type": "string"
-        }        
+        }
       },
       "required": [
         "interface",
@@ -194,6 +194,9 @@
                 "type": "string"
               },
               "vnf_template": {
+                "type": "string"
+              },
+              "domain": {
                 "type": "string"
               },
               "ports": {

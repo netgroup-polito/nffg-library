@@ -807,7 +807,7 @@ class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = None,
                 groups = None, template = None, status = None,
-                db_id = None, internal_id = None, availabilty_zone = None):
+                db_id = None, internal_id = None, availabilty_zone = None, domain = None):
         self.id = _id
         self.name = name
         self.vnf_template_location = vnf_template_location
@@ -818,6 +818,7 @@ class VNF(object):
         self.db_id = db_id
         self.internal_id = internal_id
         self.availabilty_zone = availabilty_zone
+        self.domain = domain
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
@@ -831,6 +832,8 @@ class VNF(object):
             self.ports.append(port)
         if 'groups' in vnf_dict:
             self.groups = vnf_dict['groups']
+        if 'domain' in vnf_dict:
+            self.domain = vnf_dict['domain']            
         
     def getDict(self, extended = False):
         vnf_dict = {}
@@ -854,6 +857,8 @@ class VNF(object):
                 vnf_dict['db_id'] = self.db_id
             if self.internal_id is not None:
                 vnf_dict['internal_id'] = self.internal_id
+            if self.domain is not None:
+                vnf_dict['domain'] = self.domain                
         return vnf_dict
     
     def getPort(self, port_id):
