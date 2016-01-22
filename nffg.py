@@ -958,7 +958,7 @@ class EndPoint(object):
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, 
                  prepare_connection_to_remote_endpoint_id = None,
-                 prepare_connection_to_remote_endpoint_ids = None):
+                 prepare_connection_to_remote_endpoint_ids = None, domain = None):
         '''
         Parameters
         ----------
@@ -1014,11 +1014,14 @@ class EndPoint(object):
         self.interface_internal_id = interface_internal_id
         self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
         self.prepare_connection_to_remote_endpoint_ids = prepare_connection_to_remote_endpoint_ids or []
+        self.domain = domain        
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
         if 'name' in end_point_dict:
             self.name = end_point_dict['name']
+        if 'domain' in end_point_dict:
+            self.domain = end_point_dict['domain']            
         if 'remote_endpoint_id' in end_point_dict:
             self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
         if 'prepare_connection_to_remote_endpoint_ids' in end_point_dict:
@@ -1087,6 +1090,8 @@ class EndPoint(object):
                 end_point_dict['internal_id'] = self.internal_id
             if self.interface_internal_id is not None:
                 end_point_dict['interface_internal_id'] = self.interface_internal_id
+            if self.domain is not None:
+                end_point_dict['domain'] = self.domain                 
         return end_point_dict   
 
 class FlowRule(object):
