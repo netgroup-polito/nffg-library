@@ -1,15 +1,16 @@
-This file describes, thorugh many examples, how to write a NF-FG (Network Function Forwarding Graph).
+This file describes, through many examples, how to write a NF-FG (Network Function Forwarding Graph).
 
 ===============================================================================
 
 Create a new graph that directly connects two endpoints.
 
- * The graph connects the interface eth0 of a node identified by ip address 10.0.0.1 and the interface eth1 of the same node
+ * The graph connects the interface eth0 of a node identified by ip address 10.0.0.1 and the interface eth1 of the same node. The "domain" field tells the orchestrator where the whole graph will be instantiated.  
 
 {
   "forwarding-graph": {
     "id": "00000001",
     "name": "Only network graph",
+    "domain": "domain1",
     "end-points": [
       {
         "id": "00000001",
@@ -103,6 +104,7 @@ Create a new graph that directly connects two endpoints.
   "forwarding-graph": {
     "id": "00000001",
     "name": "Only network graph",
+    "domain" : "domain1",
     "end-points": [
       {
         "id": "00000001",
@@ -161,6 +163,7 @@ Create a new graph that directly connects two endpoints.
   "forwarding-graph": {
     "id": "00000001",
     "name": "Only network graph",
+    "domain" : "domain1",
     "end-points": [
       {
         "id": "00000001",
@@ -210,7 +213,8 @@ Create a new graph that directly connects two endpoints.
 }
 
 
-Create a graph of VNF not connected with the outside world.
+Create a graph of VNFs not connected with the outside world. 
+ * Note that the "domain" field is not present in the root of forwarding-graph but is set for every VNF. This implies that the VNF 00000001 will be instantied on domain1 and the VNF 00000002 on domain2 and then they will be connected. The orchestrator is in charge of performing these operations.   
 
 {
   "forwarding-graph": {
@@ -226,7 +230,8 @@ Create a graph of VNF not connected with the outside world.
             "id": "inout:0",
             "name": "data-port"
           }
-        ]
+        ],
+        "domain": "domain1"
       },
       {
         "vnf_template": "server.json",
@@ -237,7 +242,8 @@ Create a graph of VNF not connected with the outside world.
             "id": "inout:0",
             "name": "data-port"
           }
-        ]
+        ],
+        "domain": "domain2"
       }
     ],
     "big-switch": {
@@ -279,6 +285,7 @@ Create a graph with end-points and VNFs.
   "forwarding-graph": {
     "id": "00000001",
     "name": "Forwarding graph",
+    "domain": "domain1",
     "VNFs": [
       {
         "vnf_template": "firewall.json",
@@ -371,7 +378,7 @@ Create a graph with end-points and VNFs.
   }
 }
 
- * Traffic splitting example. (the traffic coming from a VNF/end-point is divided for kind and sent to different destinations)
+ * Traffic splitting example. (the traffic coming from a VNF/end-point is divided for kind and sent to different destinations). The "domain" field is present in all VNFs and Endpoints. The two VNFS along with the egress endpoint will be instantiated on domain2, while the ingress endpoint will be on domain1.
 
 
 {
@@ -392,7 +399,8 @@ Create a graph with end-points and VNFs.
             "id": "WAN:0",
             "name": "WAN side interface"
           }
-        ]
+        ],
+        "domain": "domain2"
       },
       {
         "vnf_template": "firewall.json",
@@ -407,7 +415,8 @@ Create a graph with end-points and VNFs.
             "id": "WAN:0",
             "name": "WAN side interface"
           }
-        ]
+        ],
+        "domain": "domain2"
       }
     ],
     "end-points": [
@@ -418,16 +427,18 @@ Create a graph with end-points and VNFs.
         "interface": {
           "node-id": "10.0.0.1",
           "interface": "eth0"
-        }
+        },
+        "domain": "domain1"
       },
       {
         "id": "00000002",
         "name": "egress",
         "type": "interface",
         "interface": {
-          "node-id": "10.0.0.1",
+          "node-id": "10.0.0.2",
           "interface": "eth1"
-        }
+        },
+        "domain": "domain2"
       }
     ],
     "big-switch": {
@@ -530,6 +541,7 @@ Create a graph with end-points and VNFs.
   "forwarding-graph": {
     "id": "00000001",
     "name": "Protected access to the internet",
+    "domain": "domain1",
     "VNFs": [
       {
         "vnf_template": "switch.json",
