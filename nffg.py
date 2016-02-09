@@ -2,6 +2,7 @@
 Created on Oct 14, 2015
 
 @author: fabiomignini
+@author: stefanopetrangeli
 '''
 import sys, uuid, json, copy, collections
 from .exception import InexistentLabelFound, WrongNumberOfPorts
@@ -9,7 +10,8 @@ from .exception import InexistentLabelFound, WrongNumberOfPorts
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
                  vnfs = None, end_points = None,
-                 flow_rules = None, description = None, domain=None):
+                 flow_rules = None, description = None, 
+                 domain = None, monitoring = None):
         self.id = _id
         self.name = name
         self.description = description
@@ -17,11 +19,14 @@ class NF_FG(object):
         self.end_points = end_points or []
         self.flow_rules = flow_rules or []
         self.domain = domain
+        self.monitoring = monitoring
     
     def parseDict(self, nffg_dict):
         self.id = nffg_dict['forwarding-graph']['id']
         if 'domain' in nffg_dict['forwarding-graph']:
             self.domain = nffg_dict['forwarding-graph']['domain']
+        if 'monitoring' in nffg_dict['forwarding-graph']:
+            self.monitoring = nffg_dict['forwarding-graph']['monitoring']            
         if 'name' in nffg_dict['forwarding-graph']:
             self.name = nffg_dict['forwarding-graph']['name']
         if 'description' in nffg_dict['forwarding-graph']:
@@ -52,6 +57,8 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['name'] = self.name
         if self.description is not None:
             nffg_dict['forwarding-graph']['description'] = self.description
+        if self.monitoring is not None:
+            nffg_dict['forwarding-graph']['monitoring'] = self.monitoring            
         vnfs_dict = []
         for vnf in self.vnfs:
             vnfs_dict.append(vnf.getDict(extended))
@@ -807,7 +814,8 @@ class VNF(object):
     def __init__(self, _id = None, name = None,
                 vnf_template_location = None, ports = None,
                 groups = None, template = None, status = None,
-                db_id = None, internal_id = None, availabilty_zone = None, domain = None):
+                db_id = None, internal_id = None, availabilty_zone = None, 
+                domain = None, control = None):
         self.id = _id
         self.name = name
         self.vnf_template_location = vnf_template_location
@@ -819,6 +827,7 @@ class VNF(object):
         self.internal_id = internal_id
         self.availabilty_zone = availabilty_zone
         self.domain = domain
+        self.control = control or []
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
@@ -830,6 +839,10 @@ class VNF(object):
             port = Port()
             port.parseDict(port_dict)
             self.ports.append(port)
+        for control_dict in vnf_dict['control']:
+            control = Control()
+            control.parseDict(control_dict)
+            self.control.append(control)            
         if 'groups' in vnf_dict:
             self.groups = vnf_dict['groups']
         if 'domain' in vnf_dict:
@@ -848,6 +861,11 @@ class VNF(object):
             ports_dict.append(port.getDict(extended))
         if ports_dict:
             vnf_dict['ports'] = ports_dict
+        control_dict = []
+        for control in self.control:
+            control_dict.append(control.getDict(extended))
+        if control_dict:
+            vnf_dict['control'] = control_dict            
         if self.groups:
             vnf_dict['groups'] = self.groups
         if extended is True:
@@ -921,9 +939,11 @@ class VNF(object):
         return max_relative_id
         
 class Port(object):
-    def __init__(self, _id = None, name = None, _type = None, status = None, db_id = None, internal_id = None):
+    def __init__(self, _id = None, name = None, _type = None, status = None, db_id = None, mac = None, ip = None, internal_id = None):
         self.id = _id
         self.name = name
+        self.mac = mac
+        self.ip = ip        
         self.type = _type
         self.status = status
         self.db_id = db_id
@@ -933,6 +953,10 @@ class Port(object):
         self.id = port_dict['id']
         if 'name' in port_dict:
             self.name = port_dict['name']
+        if 'mac' in port_dict:
+            self.mac = port_dict['mac']
+        if 'ip' in port_dict:
+            self.ip = port_dict['ip']                        
         
     def getDict(self, extended = False):
         port_dict = {}
@@ -940,6 +964,10 @@ class Port(object):
             port_dict['id'] = self.id
         if self.name is not None:
             port_dict['name'] = self.name
+        if self.mac is not None:
+            port_dict['mac'] = self.mac
+        if self.ip is not None:
+            port_dict['ip'] = self.ip            
         if extended is True:
             if self.type is not None:
                 port_dict['type'] = self.type
@@ -950,11 +978,28 @@ class Port(object):
             if self.internal_id is not None:
                 port_dict['internal_id'] = self.internal_id            
         return port_dict
+    
+class Control(object):
+    def __init__(self, host_tcp_port = None, vnf_tcp_port = None):
+        self.host_tcp_port = host_tcp_port
+        self.vnf_tcp_port = vnf_tcp_port
+        
+    def parseDict(self, control_dict):
+        self.host_tcp_port = control_dict['host-tcp-port']
+        self.vnf_tcp_port = control_dict['vnf-tcp-port']
+        
+    def getDict(self, extended = False):
+        control_dict = {}
+        if self.host_tcp_port is not None:
+            control_dict['host-tcp-port'] = self.host_tcp_port
+        if self.vnf_tcp_port is not None:
+            control_dict['vnf-tcp-port'] = self.vnf_tcp_port             
+        return control_dict    
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
                  remote_endpoint_id = None, node_id = None, switch_id = None,
-                 interface = None, remote_ip = None, local_ip = None, gre_key = None, ttl = None,
+                 interface = None, remote_ip = None, local_ip = None, gre_key = None, ttl = None, safe_gre = None, 
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, 
                  prepare_connection_to_remote_endpoint_id = None,
@@ -1007,6 +1052,7 @@ class EndPoint(object):
         self.local_ip = local_ip
         self.gre_key = gre_key
         self.ttl = ttl
+        self.safe_gre = safe_gre
         self.vlan_id = vlan_id
         self.status = status
         self.db_id = db_id
@@ -1040,7 +1086,9 @@ class EndPoint(object):
                 self.interface = end_point_dict[self.type]['interface']
                 self.gre_key = end_point_dict[self.type]['gre-key']                
                 if 'ttl' in end_point_dict[self.type]:
-                    self.ttl = end_point_dict[self.type]['ttl']   
+                    self.ttl = end_point_dict[self.type]['ttl'] 
+                if 'safe' in end_point_dict[self.type]:
+                    self.safe_gre = end_point_dict[self.type]['safe']                       
             elif self.type == 'vlan':
                 self.interface = end_point_dict[self.type]['interface']
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
@@ -1079,6 +1127,8 @@ class EndPoint(object):
                     end_point_dict[self.type]['gre-key'] = self.gre_key                   
                 if self.ttl is not None:
                     end_point_dict[self.type]['ttl'] = self.ttl
+                if self.safe_gre is not None:
+                    end_point_dict[self.type]['safe'] = self.safe_gre                    
                 if self.vlan_id is not None:
                     end_point_dict[self.type]['vlan-id'] = self.vlan_id             
         if extended is True:

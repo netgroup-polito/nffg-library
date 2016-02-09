@@ -37,6 +37,9 @@
         },
         "gre-key": {
           "type": "string"
+        },
+        "safe": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -179,6 +182,9 @@
         "description": {
           "type": "string"
         },
+        "monitoring": {
+          "type": "string"
+        },
         "domain": {
           "type": "string"
         },
@@ -209,10 +215,35 @@
                     },
                     "name": {
                       "type": "string"
+                    },
+                    "mac": {
+                      "type": "string"
+                    },
+                    "ip": {
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "control": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "host-tcp-port": {
+                      "type": "integer"
+                    },
+                    "vnf-tcp-port": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "host-tcp-port",
+                    "vnf-tcp-port"
                   ],
                   "additionalProperties": false
                 }
