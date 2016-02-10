@@ -38,7 +38,7 @@
         "gre-key": {
           "type": "string"
         },
-        "safe": {
+        "secure": {
           "type": "boolean"
         }
       },
@@ -182,7 +182,7 @@
         "description": {
           "type": "string"
         },
-        "monitoring": {
+        "unify-monitoring": {
           "type": "string"
         },
         "domain": {
@@ -219,7 +219,7 @@
                     "mac": {
                       "type": "string"
                     },
-                    "ip": {
+                    "unify-ip": {
                       "type": "string"
                     }
                   },
@@ -229,7 +229,7 @@
                   "additionalProperties": false
                 }
               },
-              "control": {
+              "unify-control": {
                 "type": "array",
                 "items": {
                   "type": "object",
