@@ -839,10 +839,11 @@ class VNF(object):
             port = Port()
             port.parseDict(port_dict)
             self.ports.append(port)
-        for control_dict in vnf_dict['unify-control']:
-            control = UnifyControl()
-            control.parseDict(control_dict)
-            self.unify_control.append(control)            
+        if 'unify-control' in vnf_dict:
+            for control_dict in vnf_dict['unify-control']:
+                control = UnifyControl()
+                control.parseDict(control_dict)
+                self.unify_control.append(control)            
         if 'groups' in vnf_dict:
             self.groups = vnf_dict['groups']
         if 'domain' in vnf_dict:
