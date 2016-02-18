@@ -87,6 +87,12 @@
         "vlan_priority": {
           "type": "string"
         },
+        "arp_spa": {
+          "type": "string"
+        },
+        "arp_tpa": {
+          "type": "string"
+        },
         "source_mac": {
           "type": "string"
         },

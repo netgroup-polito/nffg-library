@@ -1215,7 +1215,8 @@ class Match(object):
                  dest_mac = None, source_ip = None,
                  dest_ip = None, tos_bits = None,
                  source_port = None, dest_port = None,
-                 protocol = None, db_id = None):
+                 protocol = None, db_id = None,
+                 arp_spa = None, arp_tpa = None):
         '''
         It contains all the openflow 1.0 match types.
         
@@ -1248,7 +1249,10 @@ class Match(object):
         self.source_port = source_port
         self.dest_port = dest_port
         self.protocol = protocol
+        self.arp_spa = arp_spa
+        self.arp_tpa = arp_tpa
         self.db_id = db_id
+        
     
     def parseDict(self, match_dict):
         if 'port_in' in match_dict:
@@ -1273,9 +1277,11 @@ class Match(object):
             self.source_port = match_dict['source_port']
         if 'dest_port' in match_dict:
             self.dest_port = match_dict['dest_port']
-        if 'protocol' in match_dict:
-            self.protocol = match_dict['protocol']                                                
-
+        if 'arp_spa' in match_dict:
+            self.arp_spa = match_dict['arp_spa']                                                
+        if 'arp_tpa' in match_dict:
+            self.arp_tpa = match_dict['arp_tpa']  
+            
         
     def getDict(self, extended = False):
         match_dict = {} 
@@ -1303,6 +1309,10 @@ class Match(object):
             match_dict['dest_port'] = self.dest_port
         if self.protocol is not None:
             match_dict['protocol'] = self.protocol
+        if self.arp_spa is not None:
+            match_dict['arp_spa'] = self.arp_spa  
+        if self.arp_tpa is not None:
+            match_dict['arp_tpa'] = self.arp_tpa              
         if extended is True:
             if self.db_id is not None:
                 match_dict['db_id'] = self.db_id
