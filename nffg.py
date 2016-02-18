@@ -1252,7 +1252,6 @@ class Match(object):
         self.arp_spa = arp_spa
         self.arp_tpa = arp_tpa
         self.db_id = db_id
-        
     
     def parseDict(self, match_dict):
         if 'port_in' in match_dict:
@@ -1277,11 +1276,12 @@ class Match(object):
             self.source_port = match_dict['source_port']
         if 'dest_port' in match_dict:
             self.dest_port = match_dict['dest_port']
+        if 'protocol' in match_dict:
+            self.protocol = match_dict['protocol']     
         if 'arp_spa' in match_dict:
             self.arp_spa = match_dict['arp_spa']                                                
         if 'arp_tpa' in match_dict:
             self.arp_tpa = match_dict['arp_tpa']  
-            
         
     def getDict(self, extended = False):
         match_dict = {} 
