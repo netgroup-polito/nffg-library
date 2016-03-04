@@ -815,7 +815,7 @@ class VNF(object):
                 vnf_template_location = None, ports = None,
                 groups = None, template = None, status = None,
                 db_id = None, internal_id = None, availabilty_zone = None, 
-                domain = None, unify_control = None):
+                domain = None, unify_control = None, unify_env_variables = None):
         self.id = _id
         self.name = name
         self.vnf_template_location = vnf_template_location
@@ -828,6 +828,7 @@ class VNF(object):
         self.availabilty_zone = availabilty_zone
         self.domain = domain
         self.unify_control = unify_control or []
+        self.unify_env_variables = unify_env_variables or []
     
     def parseDict(self, vnf_dict):
         self.id = vnf_dict['id']
@@ -843,7 +844,11 @@ class VNF(object):
             for control_dict in vnf_dict['unify-control']:
                 control = UnifyControl()
                 control.parseDict(control_dict)
-                self.unify_control.append(control)            
+                self.unify_control.append(control)     
+        if 'unify-env-variables' in vnf_dict:
+            for env_variable_dict in vnf_dict['unify-env-variables']:
+                env_variable = env_variable_dict['variable']
+                self.unify_env_variables.append(env_variable)                         
         if 'groups' in vnf_dict:
             self.groups = vnf_dict['groups']
         if 'domain' in vnf_dict:
@@ -866,7 +871,14 @@ class VNF(object):
         for control in self.unify_control:
             control_dict.append(control.getDict(extended))
         if control_dict:
-            vnf_dict['unify-control'] = control_dict            
+            vnf_dict['unify-control'] = control_dict   
+        unify_env_variables_dict = []
+        for variable in self.unify_env_variables:
+            variable_dict={}
+            variable_dict['variable'] = variable
+            unify_env_variables_dict.append(variable_dict)            
+        if unify_env_variables_dict:
+            vnf_dict['unify-env-variables'] = unify_env_variables_dict       
         if self.groups:
             vnf_dict['groups'] = self.groups
         if extended is True:
@@ -995,7 +1007,7 @@ class UnifyControl(object):
             control_dict['host-tcp-port'] = self.host_tcp_port
         if self.vnf_tcp_port is not None:
             control_dict['vnf-tcp-port'] = self.vnf_tcp_port             
-        return control_dict    
+        return control_dict          
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 

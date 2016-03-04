@@ -254,6 +254,21 @@
                   "additionalProperties": false
                 }
               },
+              "unify-env-variables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "variable": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "variable"
+                  ],
+                  "additionalProperties": false
+                }
+              },
               "groups": {
                 "type": "array"
               }
