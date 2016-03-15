@@ -48,7 +48,7 @@ class NF_FG(object):
                     flow_rule.parseDict(flow_rule_dict)
                     self.flow_rules.append(flow_rule)
     
-    def getDict(self, extended = False):
+    def getDict(self, extended = False, domain = False):
         nffg_dict = {}
         nffg_dict['forwarding-graph'] = {}
         if self.id is not None:
@@ -75,13 +75,13 @@ class NF_FG(object):
         if flow_rules_dict:
             nffg_dict['forwarding-graph']['big-switch'] = {}
             nffg_dict['forwarding-graph']['big-switch']['flow-rules'] = flow_rules_dict
-        if extended is True:
+        if domain is True:
             if self.domain is not None:
                 nffg_dict['forwarding-graph']['domain'] = self.domain
         return nffg_dict
     
-    def getJSON(self, extended = False):
-        return json.dumps(self.getDict(extended)) 
+    def getJSON(self, extended = False, domain = False):
+        return json.dumps(self.getDict(extended, domain)) 
     
     def getVNF(self, vnf_id):
         for vnf in self.vnfs:
