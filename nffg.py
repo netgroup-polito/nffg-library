@@ -809,6 +809,11 @@ class NF_FG(object):
                     deleted_flows.append(copy.deepcopy(flow_rule))
                     self.flow_rules.remove(flow_rule)
         return deleted_flows
+
+    def getNextAvailableEndPointId(self):
+        for id_number in range(len(self.end_points) + 1):
+            if self.getEndPoint(str(id_number).zfill(8)) is None:
+                return str(id_number).zfill(8)
                     
 class VNF(object):
     def __init__(self, _id = None, name = None,
