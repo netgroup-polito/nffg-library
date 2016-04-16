@@ -811,7 +811,7 @@ class NF_FG(object):
         return deleted_flows
 
     def getNextAvailableEndPointId(self):
-        for id_number in range(len(self.end_points) + 1):
+        for id_number in range(1, len(self.end_points) + 2):
             if self.getEndPoint(str(id_number).zfill(8)) is None:
                 return str(id_number).zfill(8)
                     
