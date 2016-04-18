@@ -814,6 +814,11 @@ class NF_FG(object):
         for id_number in range(1, len(self.end_points) + 2):
             if self.getEndPoint(str(id_number).zfill(8)) is None:
                 return str(id_number).zfill(8)
+
+    def getNextAvailableFlowRuleId(self):
+        for id_number in range(1, len(self.flow_rules) + 2):
+            if self.getFlowRule(str(id_number).zfill(8)) is None:
+                return str(id_number).zfill(8)
                     
 class VNF(object):
     def __init__(self, _id = None, name = None,
@@ -947,12 +952,12 @@ class VNF(object):
         for port in self.ports:
             # TODO: Check that, the relative index of the port doesn't exceed the maximum number of ports for that label
             pass
-    
+
     def getHigherReletiveIDForPortLabel(self, label):
         max_relative_id = -1
         for port in self.ports:
             if port.id.split(":")[0] == label:
-                if port.id.split(":")[1] > max_relative_id:
+                if int(port.id.split(":")[1]) > int(max_relative_id):
                     max_relative_id = port.id.split(":")[1]
         return max_relative_id
         
