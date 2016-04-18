@@ -29,9 +29,6 @@
         "remote-ip": {
           "type": "string"
         },
-        "interface": {
-          "type": "string"
-        },
         "ttl": {
           "type": "string"
         },
@@ -43,10 +40,21 @@
         }
       },
       "required": [
-        "interface",
         "remote-ip",
         "local-ip",
         "gre-key"
+      ],
+      "additionalProperties": false
+    },
+    "internal": {
+      "type": "object",
+      "properties": {
+        "internal-group": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "internal-group"
       ],
       "additionalProperties": false
     },
@@ -313,7 +321,9 @@
                   "type": "string"
                 }
               },
-              "internal": {},
+              "internal": {
+                "$ref": "#/definitions/internal"
+              },
               "interface": {
                 "$ref": "#/definitions/interface"
               },

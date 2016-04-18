@@ -1024,7 +1024,7 @@ class EndPoint(object):
                  remote_endpoint_id = None, node_id = None, switch_id = None,
                  interface = None, remote_ip = None, local_ip = None, gre_key = None, ttl = None, secure_gre = None, 
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
-                 interface_internal_id = None, 
+                 interface_internal_id = None, internal_group = None,
                  prepare_connection_to_remote_endpoint_id = None,
                  prepare_connection_to_remote_endpoint_ids = None, domain = None):
         '''
@@ -1079,6 +1079,7 @@ class EndPoint(object):
         self.vlan_id = vlan_id
         self.status = status
         self.db_id = db_id
+        self.internal_group = internal_group
         self.internal_id = internal_id
         self.interface_internal_id = interface_internal_id
         self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
@@ -1106,7 +1107,6 @@ class EndPoint(object):
             elif self.type == 'gre-tunnel':
                 self.remote_ip = end_point_dict[self.type]['remote-ip']
                 self.local_ip = end_point_dict[self.type]['local-ip']
-                self.interface = end_point_dict[self.type]['interface']
                 self.gre_key = end_point_dict[self.type]['gre-key']                
                 if 'ttl' in end_point_dict[self.type]:
                     self.ttl = end_point_dict[self.type]['ttl'] 
@@ -1119,6 +1119,8 @@ class EndPoint(object):
                     self.node_id = end_point_dict[self.type]['node-id']
                 if 'switch-id' in end_point_dict[self.type]:
                     self.switch_id = end_point_dict[self.type]['switch-id']
+            elif self.type == 'internal':
+                self.internal_group = end_point_dict[self.type]['internal-group']
          
     def getDict(self, extended = False):
         end_point_dict = {}
@@ -1134,7 +1136,7 @@ class EndPoint(object):
             end_point_dict['prepare_connection_to_remote_endpoint_id'] = self.prepare_connection_to_remote_endpoint_id 
         if self.type is not None:
             end_point_dict['type'] = self.type
-            if self.type != 'internal' and self.type != 'shadow':
+            if self.type != 'shadow':
                 end_point_dict[self.type] = {}
                 if self.node_id is not None:
                     end_point_dict[self.type]['node-id'] = self.node_id
@@ -1153,7 +1155,9 @@ class EndPoint(object):
                 if self.secure_gre is not None:
                     end_point_dict[self.type]['secure'] = self.secure_gre                    
                 if self.vlan_id is not None:
-                    end_point_dict[self.type]['vlan-id'] = self.vlan_id             
+                    end_point_dict[self.type]['vlan-id'] = self.vlan_id
+                if self.internal_group is not None:
+                    end_point_dict[self.type]['internal-group'] = self.internal_group
         if extended is True:
             if self.status is not None:
                 end_point_dict['status'] = self.status 
