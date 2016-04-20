@@ -307,7 +307,6 @@
                 "enum": [
                   "internal",
                   "interface",
-                  "interface-out",
                   "gre-tunnel",
                   "vlan"
                 ]
