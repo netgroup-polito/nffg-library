@@ -11,12 +11,12 @@
         "switch-id": {
           "type": "string"
         },
-        "interface": {
+        "if-name": {
           "type": "string"
         }
       },
       "required": [
-        "interface"
+        "if-name"
       ],
       "additionalProperties": false
     },
@@ -64,7 +64,7 @@
         "vlan-id": {
           "type": "string"
         },
-        "interface": {
+        "if-name": {
           "type": "string"
         },
         "switch-id": {
@@ -76,7 +76,7 @@
       },
       "required": [
         "vlan-id",
-        "interface"
+        "if-name"
       ],
       "additionalProperties": false
     },
@@ -324,9 +324,6 @@
                 "$ref": "#/definitions/internal"
               },
               "interface": {
-                "$ref": "#/definitions/interface"
-              },
-              "interface-out": {
                 "$ref": "#/definitions/interface"
               },
               "gre-tunnel": {

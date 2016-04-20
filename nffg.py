@@ -1100,7 +1100,7 @@ class EndPoint(object):
         if 'type' in end_point_dict:
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
-                self.interface = end_point_dict[self.type]['interface']
+                self.interface = end_point_dict[self.type]['if-name']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
                 if 'switch-id' in end_point_dict[self.type]:
@@ -1114,7 +1114,7 @@ class EndPoint(object):
                 if 'secure' in end_point_dict[self.type]:
                     self.secure_gre = end_point_dict[self.type]['secure']                       
             elif self.type == 'vlan':
-                self.interface = end_point_dict[self.type]['interface']
+                self.interface = end_point_dict[self.type]['if-name']
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
@@ -1144,7 +1144,7 @@ class EndPoint(object):
                 if self.switch_id is not None:
                     end_point_dict[self.type]['switch-id'] = self.switch_id     
                 if self.interface is not None:
-                    end_point_dict[self.type]['interface'] = self.interface
+                    end_point_dict[self.type]['if-name'] = self.interface
                 if self.remote_ip is not None:
                     end_point_dict[self.type]['remote-ip'] = self.remote_ip  
                 if self.local_ip is not None:
