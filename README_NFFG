@@ -18,7 +18,7 @@ Create a new graph that directly connects two endpoints.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth0"
+          "if-name": "eth0"
         }
       },
       {
@@ -27,7 +27,7 @@ Create a new graph that directly connects two endpoints.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth1"
+          "if-name": "eth1"
         }
       }
     ],
@@ -112,7 +112,7 @@ Create a new graph that directly connects two endpoints.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth0"
+          "if-name": "eth0"
         }
       },
       {
@@ -122,7 +122,7 @@ Create a new graph that directly connects two endpoints.
         "vlan": {
           "vlan-id": "123",
           "node-id": "10.0.0.1",
-          "interface": "eth1"
+          "if-name": "eth1"
         }
       }
     ],
@@ -171,7 +171,7 @@ Create a new graph that directly connects two endpoints.
         "type": "interface",
         "interface": {
           "switch-id": "openflow:110953238266560",
-          "interface": "300"
+          "if-name": "300"
         }
       },
       {
@@ -310,7 +310,7 @@ Create a graph with end-points and VNFs.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth0"
+          "if-name": "eth0"
         }
       },
       {
@@ -319,7 +319,7 @@ Create a graph with end-points and VNFs.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth1"
+          "if-name": "eth1"
         }
       }
     ],
@@ -426,7 +426,7 @@ Create a graph with end-points and VNFs.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.1",
-          "interface": "eth0"
+          "if-name": "eth0"
         },
         "domain": "domain1"
       },
@@ -436,7 +436,7 @@ Create a graph with end-points and VNFs.
         "type": "interface",
         "interface": {
           "node-id": "10.0.0.2",
-          "interface": "eth1"
+          "if-name": "eth1"
         },
         "domain": "domain2"
       }
@@ -616,7 +616,7 @@ Create a graph with end-points and VNFs.
         "type": "interface",
         "interface": {
           "node-id": "130.192.225.193",
-          "interface": "to-br-usr"
+          "if-name": "to-br-usr"
         }
       },
       {
@@ -625,7 +625,7 @@ Create a graph with end-points and VNFs.
         "type": "interface-out",
         "interface-out": {
           "node-id": "130.192.225.193",
-          "interface": "eth2"
+          "if-name": "eth2"
         }
       }
     ],
