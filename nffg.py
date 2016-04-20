@@ -1097,6 +1097,8 @@ class EndPoint(object):
             self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
         if 'prepare_connection_to_remote_endpoint_ids' in end_point_dict:
             self.prepare_connection_to_remote_endpoint_ids = end_point_dict['prepare_connection_to_remote_endpoint_ids']
+        if 'db_id' in end_point_dict:
+            self.db_id = end_point_dict['db_id']
         if 'type' in end_point_dict:
             self.type = end_point_dict['type']
             if self.type == 'interface' or self.type == 'interface-out':
