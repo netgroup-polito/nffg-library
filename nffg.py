@@ -61,12 +61,12 @@ class NF_FG(object):
             nffg_dict['forwarding-graph']['unify-monitoring'] = self.unify_monitoring            
         vnfs_dict = []
         for vnf in self.vnfs:
-            vnfs_dict.append(vnf.getDict(extended))
+            vnfs_dict.append(vnf.getDict(extended, domain))
         if vnfs_dict:
             nffg_dict['forwarding-graph']['VNFs'] = vnfs_dict
         end_points_dict = []
         for end_point in self.end_points:
-            end_points_dict.append(end_point.getDict(extended))
+            end_points_dict.append(end_point.getDict(extended, domain))
         if end_points_dict:
             nffg_dict['forwarding-graph']['end-points'] = end_points_dict
         flow_rules_dict = []
@@ -864,7 +864,7 @@ class VNF(object):
         if 'domain' in vnf_dict:
             self.domain = vnf_dict['domain']            
         
-    def getDict(self, extended = False):
+    def getDict(self, extended = False, domain = False):
         vnf_dict = {}
         if self.id is not None:
             vnf_dict['id'] = self.id 
@@ -898,6 +898,7 @@ class VNF(object):
                 vnf_dict['db_id'] = self.db_id
             if self.internal_id is not None:
                 vnf_dict['internal_id'] = self.internal_id
+        if domain is True:
             if self.domain is not None:
                 vnf_dict['domain'] = self.domain                
         return vnf_dict
@@ -1122,7 +1123,7 @@ class EndPoint(object):
             elif self.type == 'internal':
                 self.internal_group = end_point_dict[self.type]['internal-group']
          
-    def getDict(self, extended = False):
+    def getDict(self, extended = False, domain = False):
         end_point_dict = {}
         if self.id is not None:
             end_point_dict['id'] = self.id
@@ -1167,6 +1168,7 @@ class EndPoint(object):
                 end_point_dict['internal_id'] = self.internal_id
             if self.interface_internal_id is not None:
                 end_point_dict['interface_internal_id'] = self.interface_internal_id
+        if domain is True:
             if self.domain is not None:
                 end_point_dict['domain'] = self.domain                 
         return end_point_dict   
