@@ -404,8 +404,8 @@ class NF_FG(object):
             for new_endpoint in nffg_new.end_points:
                 if old_endpoint.id == new_endpoint.id and old_endpoint.type == new_endpoint.type\
                  and old_endpoint.vlan_id == new_endpoint.vlan_id and old_endpoint.remote_endpoint_id == new_endpoint.remote_endpoint_id\
-                 and old_endpoint.node_id == new_endpoint.node_id and old_endpoint.switch_id == new_endpoint.switch_id\
-                 and old_endpoint.interface == new_endpoint.interface and old_endpoint.remote_ip == new_endpoint.remote_ip\
+                 and old_endpoint.node_id == new_endpoint.node_id and old_endpoint.interface == new_endpoint.interface\
+                 and old_endpoint.remote_ip == new_endpoint.remote_ip\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl:
                     if collections.Counter(old_endpoint.prepare_connection_to_remote_endpoint_ids) != collections.Counter(new_endpoint.prepare_connection_to_remote_endpoint_ids):
@@ -1022,8 +1022,9 @@ class UnifyControl(object):
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
-                 remote_endpoint_id = None, node_id = None, switch_id = None,
-                 interface = None, remote_ip = None, local_ip = None, gre_key = None, ttl = None, secure_gre = None, 
+                 remote_endpoint_id = None, node_id = None,
+                 interface = None, remote_ip = None, local_ip = None,
+                 gre_key = None, ttl = None, secure_gre = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, internal_group = None,
                  prepare_connection_to_remote_endpoint_id = None,
@@ -1052,8 +1053,6 @@ class EndPoint(object):
             the remote end-points where this end-point will be connected.
         node_id : string
            Optional field. Its meaning depends on the value of field _type
-        switch_id : string
-           Optional field. Its meaning depends on the value of field _type
         interface : string
            Optional field. Its meaning depends on the value of field _type
         remote_ip : string
@@ -1070,7 +1069,6 @@ class EndPoint(object):
         self.type = _type
         self.remote_endpoint_id = remote_endpoint_id
         self.node_id = node_id
-        self.switch_id = switch_id
         self.interface = interface
         self.remote_ip = remote_ip
         self.local_ip = local_ip
@@ -1105,8 +1103,6 @@ class EndPoint(object):
                 self.interface = end_point_dict[self.type]['if-name']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
-                if 'switch-id' in end_point_dict[self.type]:
-                    self.switch_id = end_point_dict[self.type]['switch-id']
             elif self.type == 'gre-tunnel':
                 self.remote_ip = end_point_dict[self.type]['remote-ip']
                 self.local_ip = end_point_dict[self.type]['local-ip']
@@ -1120,8 +1116,6 @@ class EndPoint(object):
                 self.vlan_id = end_point_dict[self.type]['vlan-id']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
-                if 'switch-id' in end_point_dict[self.type]:
-                    self.switch_id = end_point_dict[self.type]['switch-id']
             elif self.type == 'internal':
                 self.internal_group = end_point_dict[self.type]['internal-group']
          
@@ -1143,8 +1137,6 @@ class EndPoint(object):
                 end_point_dict[self.type] = {}
                 if self.node_id is not None:
                     end_point_dict[self.type]['node-id'] = self.node_id
-                if self.switch_id is not None:
-                    end_point_dict[self.type]['switch-id'] = self.switch_id     
                 if self.interface is not None:
                     end_point_dict[self.type]['if-name'] = self.interface
                 if self.remote_ip is not None:
