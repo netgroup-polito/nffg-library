@@ -644,7 +644,9 @@ class NF_FG(object):
                 marked_vnfs, marked_endpoints = self.deleteVNFAndConnections(nffg_right, element, marked_vnfs, marked_endpoints)        
             elif type(element) is EndPoint:
                 marked_vnfs, marked_endpoints = self.deleteEndpointAndConnections(nffg_right, element.id, marked_vnfs, marked_endpoints)
-        
+
+        #print(nffg_left.getJSON())
+        #print(nffg_right.getJSON())
         return nffg_left, nffg_right
         
     def deleteVNFAndConnections(self, nffg, vnf, marked_vnfs=None, marked_endpoints=None):
@@ -652,7 +654,7 @@ class NF_FG(object):
         Deletes the VNF and recursively connected VNFs and Endpoints.
         '''
         marked_vnfs = marked_vnfs or []        
-        if vnf.id not in marked_vnfs:
+        if vnf is not None and vnf.id not in marked_vnfs:
             marked_vnfs.append(vnf.id)
             for port in vnf.ports:
                 out_flows = nffg.deleteIncomingFlowrules("vnf:"+vnf.id+":"+port.id)
@@ -680,7 +682,7 @@ class NF_FG(object):
         Deletes the Endpoint and recursively connected VNFs and Endpoints.
         '''     
         marked_endpoints = marked_endpoints or []
-        if endpoint_id not in marked_endpoints:
+        if endpoint_id is not None and endpoint_id not in marked_endpoints:
             marked_endpoints.append(endpoint_id)
             out_flows = nffg.deleteIncomingFlowrules("endpoint:"+endpoint_id)
             for flow in out_flows:
