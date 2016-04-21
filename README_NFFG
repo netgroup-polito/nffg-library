@@ -622,8 +622,8 @@ Create a graph with end-points and VNFs.
       {
         "id": "00000002",
         "name": "egress",
-        "type": "interface-out",
-        "interface-out": {
+        "type": "interface",
+        "interface": {
           "node-id": "130.192.225.193",
           "if-name": "eth2"
         }
