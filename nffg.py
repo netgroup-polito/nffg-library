@@ -173,8 +173,8 @@ class NF_FG(object):
         flow_rules = self.getFlowRulesSendingTrafficToPort(vnf_id, port_id)
         for flow_rule in flow_rules:
             if flow_rule.match.port_in.split(':')[0] == 'endpoint':
-                end_points.append(self.getEndPoint(flow_rule.match.port_in))
-        return flow_rules
+                end_points.append(self.getEndPoint(flow_rule.match.port_in.split(':')[1]))
+        return end_points
     
     def expandNode(self, old_vnf, internal_nffg):
         '''
