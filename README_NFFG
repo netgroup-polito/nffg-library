@@ -170,7 +170,7 @@ Create a new graph that directly connects two endpoints.
         "name": "ingress",
         "type": "interface",
         "interface": {
-          "switch-id": "openflow:110953238266560",
+          "node-id": "openflow:110953238266560",
           "if-name": "300"
         }
       },

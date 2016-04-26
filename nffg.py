@@ -127,7 +127,7 @@ class NF_FG(object):
             if end_point.name == end_point_name:
                 endpoints.append(end_point)
         return endpoints
-    
+
     def getFlowRulesSendingTrafficToEndPoint(self, endpoint_id):
         return self.getFlowRuleSendingTrafficToNode("endpoint:"+endpoint_id)
 
@@ -439,14 +439,16 @@ class NF_FG(object):
         
         return nffg
     
-    def split(self, left_list, right_list):
+    def split(self, left_list, right_list, only_left = True):
         '''
         Splits a nffg adding endpoints and returns both subgraphs (left and right)
+        Only_left set to true returns only the left subgraph (useful when splitting multiple times)
         '''
         nffg_left = copy.deepcopy(self)
         left_list_original = copy.deepcopy(left_list)
         right_list_original = copy.deepcopy(right_list)
-        
+
+        domains_dict = {}
         #debug purpose only
         left_list_dict = []
         right_list_dict = []
@@ -460,14 +462,14 @@ class NF_FG(object):
                 if element in left_list:
                     left_list_dict.append("vnf:"+element.id)
                 else:
-                    right_list_dict.append("vnf:"+element.id)              
+                    right_list_dict.append("vnf:"+element.id)
             elif type(element) is EndPoint:
                 if element not in self.end_points:
                     raise Exception("EndPoint not present in nffg")
                 if element in left_list:
                     left_list_dict.append("endpoint:"+element.id)
                 else:
-                    right_list_dict.append("endpoint:"+element.id)     
+                    right_list_dict.append("endpoint:"+element.id)
             else:
                 raise TypeError()
             
@@ -493,6 +495,8 @@ class NF_FG(object):
                                         links[flowrule.match.port_in].append(action.output)
                                         if flowrule.id not in left_flows:
                                             left_flows.append(flowrule.id)
+                                        if action.output not in domains_dict:
+                                            domains_dict[action.output] = r_element.domain
                                         break
                             elif action.output.split(":")[0] == 'vnf':
                                 for r_element in right_list:
@@ -503,6 +507,8 @@ class NF_FG(object):
                                         links[flowrule.match.port_in].append(action.output)
                                         if flowrule.id not in left_flows:
                                             left_flows.append(flowrule.id)
+                                        if action.output not in domains_dict:
+                                            domains_dict[action.output] = r_element.domain
                                         break
                 # Check flowrules sending traffic to this endpoint
                 flowrules = nffg_left.getFlowRulesSendingTrafficToEndPoint(l_element.id)
@@ -516,6 +522,8 @@ class NF_FG(object):
                                     links[flowrule.match.port_in].append("endpoint:"+l_element.id)
                                     if flowrule.id not in right_flows:
                                         right_flows.append(flowrule.id)
+                                    if flowrule.match.port_in not in domains_dict:
+                                        domains_dict[flowrule.match.port_in] = r_element.domain
                                     break  
                         elif flowrule.match.port_in.split(":")[0] == 'vnf':
                             for r_element in right_list:
@@ -525,6 +533,8 @@ class NF_FG(object):
                                     links[flowrule.match.port_in].append("endpoint:"+l_element.id)
                                     if flowrule.id not in right_flows:
                                         right_flows.append(flowrule.id)
+                                    if flowrule.match.port_in not in domains_dict:
+                                        domains_dict[flowrule.match.port_in] = r_element.domain                         
                                     break
             #VNF                        
             if type(l_element) is VNF:
@@ -540,6 +550,8 @@ class NF_FG(object):
                                         links[flowrule.match.port_in].append(action.output)
                                         if flowrule.id not in left_flows:
                                             left_flows.append(flowrule.id)
+                                        if action.output not in domains_dict:
+                                            domains_dict[action.output] = r_element.domain                         
                                         break
                             elif action.output.split(":")[0] == 'vnf':
                                 for r_element in right_list:
@@ -550,6 +562,8 @@ class NF_FG(object):
                                         links[flowrule.match.port_in].append(action.output)
                                         if flowrule.id not in left_flows:
                                             left_flows.append(flowrule.id)
+                                        if action.output not in domains_dict:
+                                            domains_dict[action.output] = r_element.domain                      
                                         break
                 # Check flowrules sending traffic to this vnf                       
                 flowrules = nffg_left.getFlowRulesSendingTrafficToVNF(l_element)
@@ -565,6 +579,8 @@ class NF_FG(object):
                                             links[flowrule.match.port_in].append(action.output)
                                     if flowrule.id not in right_flows:
                                         right_flows.append(flowrule.id)
+                                    if flowrule.match.port_in not in domains_dict:
+                                        domains_dict[flowrule.match.port_in] = r_element.domain                
                                     break  
                         elif flowrule.match.port_in.split(":")[0] == 'vnf':
                             for r_element in right_list:
@@ -576,11 +592,14 @@ class NF_FG(object):
                                             links[flowrule.match.port_in].append(action.output)
                                     if flowrule.id not in right_flows:
                                         right_flows.append(flowrule.id)
+                                    if flowrule.match.port_in not in domains_dict:
+                                        domains_dict[flowrule.match.port_in] = r_element.domain         
                                     break  
             
-        #print links
-        #print left_flows
-        #print right_flows
+        #print (links)
+        #print (domains_dict)
+        #print (left_flows)
+        #print (right_flows)
         
         #Break links and create endpoints
         nffg_right = copy.deepcopy(nffg_left)
@@ -598,7 +617,7 @@ class NF_FG(object):
                     output = action.output
                     action.output = "endpoint:"+endpoint_id
                     flowrule_left.id = flow_id+"_1"
-                    ep1 = EndPoint(_id=endpoint_id,_type="internal")
+                    ep1 = EndPoint(_id=endpoint_id, remote_domain=domains_dict[output])
                     nffg_left.addEndPoint(ep1)
                     #Right graph
                     flowrule_2 = nffg_right.getFlowRule(flow_id)
@@ -606,7 +625,7 @@ class NF_FG(object):
                     flowrule_2.match = Match(port_in="endpoint:"+endpoint_id)
                     flowrule_2.actions = []
                     flowrule_2.actions.append(Action(output=output))
-                    ep2 = EndPoint(_id=endpoint_id,_type="internal")
+                    ep2 = EndPoint(_id=endpoint_id)
                     nffg_right.addEndPoint(ep2)
                 
         for flow_id in right_flows:
@@ -620,12 +639,16 @@ class NF_FG(object):
                     endpoint_id = link_split[action.output+"<->"+flowrule.match.port_in]
                     action.output = "endpoint:"+endpoint_id
                     flowrule_right.id = flow_id+"_1"
+                    if nffg_right.getEndPoint(endpoint_id) is None:
+                        nffg_right.addEndPoint(EndPoint(_id=endpoint_id))
                     #Left graph
                     flowrule_left = nffg_left.getFlowRule(flow_id)
                     flowrule_left.id = flow_id+"_2"
                     flowrule_left.match = Match(port_in="endpoint:"+endpoint_id)
                     flowrule_left.actions = []
-                    flowrule_left.actions.append(Action(output=output))    
+                    flowrule_left.actions.append(Action(output=output))
+                    if nffg_left.getEndPoint(endpoint_id) is None:
+                        nffg_left.addEndPoint(EndPoint(_id=endpoint_id, remote_domain=domains_dict[flowrule.match.port_in]))
                      
         #Delete obsolete parts from graphs
         marked_vnfs = None
@@ -647,6 +670,8 @@ class NF_FG(object):
 
         #print(nffg_left.getJSON())
         #print(nffg_right.getJSON())
+        if only_left is True:
+            return nffg_left
         return nffg_left, nffg_right
         
     def deleteVNFAndConnections(self, nffg, vnf, marked_vnfs=None, marked_endpoints=None):
@@ -704,13 +729,40 @@ class NF_FG(object):
             nffg.end_points.remove(nffg.getEndPoint(endpoint_id))
         return marked_vnfs, marked_endpoints
     
-    def getAutogeneratedEndpoints(self):
+    def getRemoteGeneratedEndpoints(self, domain_1, domain_2, remote_nffg):
+        remote_endpoints = []
+        for local_endpoint in self.end_points:
+            found = False
+            if local_endpoint.remote_domain == domain_2:
+                for local_flowrule in self.getFlowRulesSendingTrafficToEndPoint(local_endpoint.id):
+                    remote_flowrule = remote_nffg.getFlowRule(local_flowrule.id[:-1] + "2")
+                    if remote_flowrule is not None:
+                        port_in = remote_flowrule.match.port_in
+                        if port_in is not None and port_in.startswith("endpoint:autogenerated_split_"):
+                            remote_endpoints.append(remote_nffg.getEndPoint(port_in.split(":")[1]))
+                            found = True
+                            break
+                if found is True:
+                    continue
+                for local_flowrule in self.getFlowRulesSendingTrafficFromEndPoint(local_endpoint.id):
+                    remote_flowrule = remote_nffg.getFlowRule(local_flowrule.id[:-1] + "1")
+                    if remote_flowrule is not None:
+                        for action in remote_flowrule.actions:
+                            if action.output is not None and action.output.startswith("endpoint.autogenerated_split_"):
+                                remote_endpoints.append(remote_nffg.getEndPoint(action.output.split(":")[1]))
+                                found = True
+                                break
+                        if found is True:
+                            break
+        return remote_endpoints
+    
+    def getAutogeneratedEndpoints(self, remote_domain):
         endpoints = []
         for end_point in self.end_points:
-            if end_point.id.startswith("autogenerated_split_"):
+            if end_point.id.startswith("autogenerated_split_") and end_point.remote_domain == remote_domain:
                 endpoints.append(end_point)
         return endpoints
-    
+    """
     def join(self, nffg_2):
         '''
         Merges two graphs that have been split previously. nffg_2 is left intact
@@ -762,7 +814,7 @@ class NF_FG(object):
         for end_point in self.end_points[:]:
             if end_point.id in removed_endpoints:
                 self.end_points.remove(end_point)
-                        
+    """               
     def deleteEndPointConnections(self, endpoint_id):
         return self.deleteConnections("endpoint:"+endpoint_id)
     
@@ -1030,7 +1082,7 @@ class EndPoint(object):
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, internal_group = None,
                  prepare_connection_to_remote_endpoint_id = None,
-                 prepare_connection_to_remote_endpoint_ids = None, domain = None):
+                 prepare_connection_to_remote_endpoint_ids = None, domain = None, remote_domain = None):
         '''
         Parameters
         ----------
@@ -1085,7 +1137,8 @@ class EndPoint(object):
         self.interface_internal_id = interface_internal_id
         self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
         self.prepare_connection_to_remote_endpoint_ids = prepare_connection_to_remote_endpoint_ids or []
-        self.domain = domain        
+        self.domain = domain
+        self.remote_domain = remote_domain      
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -1164,6 +1217,8 @@ class EndPoint(object):
                 end_point_dict['internal_id'] = self.internal_id
             if self.interface_internal_id is not None:
                 end_point_dict['interface_internal_id'] = self.interface_internal_id
+            if self.remote_domain is not None:
+                end_point_dict['remote_domain'] = self.remote_domain                   
         if domain is True:
             if self.domain is not None:
                 end_point_dict['domain'] = self.domain                 
