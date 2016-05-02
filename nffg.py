@@ -175,6 +175,19 @@ class NF_FG(object):
             if flow_rule.match.port_in.split(':')[0] == 'endpoint':
                 end_points.append(self.getEndPoint(flow_rule.match.port_in.split(':')[1]))
         return end_points
+
+    def isDuplicatedFlowrule(self, other_flowrule):
+        '''
+        Checks if other_flowrule is already present in the nffg. The comparison is based on all fields except the ID
+        '''
+        for flow_rule in self.flow_rules:
+            current_flowrule_dict = flow_rule.getDict()
+            del current_flowrule_dict['id']
+            other_flowrule_dict = other_flowrule.getDict()
+            del other_flowrule_dict['id']
+            if current_flowrule_dict == other_flowrule_dict and flow_rule.id != other_flowrule.id:
+                return True
+        return False
     
     def expandNode(self, old_vnf, internal_nffg):
         '''
@@ -602,7 +615,7 @@ class NF_FG(object):
                                     if flowrule.id not in right_flows:
                                         right_flows.append(flowrule.id)
                                     if flowrule.match.port_in not in domains_dict:
-                                        domains_dict[flowrule.match.port_in] = r_element.domain         
+                                        domains_dict[flowrule.match.port_in] = r_element.domain
                                     break  
             
         #print (links)
@@ -631,6 +644,8 @@ class NF_FG(object):
                     flowrule_left.id = flow_id+"_1"
                     if nffg_left.getEndPoint(endpoint_id) is None:
                         nffg_left.addEndPoint(EndPoint(_id=endpoint_id, remote_domain=domains_dict[output]))
+                    if nffg_left.isDuplicatedFlowrule(flowrule_left) is True:
+                        nffg_left.flow_rules.remove(flowrule_left)
                     #Right graph - may be broken
                     flowrule_2 = nffg_right.getFlowRule(flow_id)
                     flowrule_2.id = flow_id+"_2"
@@ -661,7 +676,9 @@ class NF_FG(object):
                     flowrule_left.actions.append(Action(output=output))
                     if nffg_left.getEndPoint(endpoint_id) is None:
                         nffg_left.addEndPoint(EndPoint(_id=endpoint_id, remote_domain=domains_dict[flowrule.match.port_in]))
-                     
+                    if nffg_left.isDuplicatedFlowrule(flowrule_left) is True:
+                        nffg_left.flow_rules.remove(flowrule_left)
+
         #Delete obsolete parts from graphs
         marked_vnfs = None
         marked_endpoints=None
