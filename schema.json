@@ -8,12 +8,12 @@
         "node-id": {
           "type": "string"
         },
-        "if-name": {
+        "interface": {
           "type": "string"
         }
       },
       "required": [
-        "if-name"
+        "interface"
       ],
       "additionalProperties": false
     },
@@ -61,7 +61,7 @@
         "vlan-id": {
           "type": "string"
         },
-        "if-name": {
+        "interface": {
           "type": "string"
         },
         "node-id": {
@@ -70,7 +70,7 @@
       },
       "required": [
         "vlan-id",
-        "if-name"
+        "interface"
       ],
       "additionalProperties": false
     },
