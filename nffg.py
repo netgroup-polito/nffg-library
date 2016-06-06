@@ -1268,7 +1268,7 @@ class FlowRule(object):
     def __init__(self, _id = None, priority = None,
                  match = None, actions = None, status = None,
                  db_id = None, internal_id = None, _type = None,
-                 node_id = None, description = None):
+                 node_id = None, table_id = None, description = None):
         self.id = _id
         self.description = description
         self.priority = priority
@@ -1277,6 +1277,7 @@ class FlowRule(object):
         self.status = status
         self.db_id = db_id
         self.internal_id = internal_id
+        self.table_id = table_id
         self.type = _type
         self.node_id = node_id
     
@@ -1317,7 +1318,9 @@ class FlowRule(object):
             if self.type is not None:
                 flow_rule_dict['type'] = self.type    
             if self.node_id is not None:
-                flow_rule_dict['node_id'] = self.node_id    
+                flow_rule_dict['node_id'] = self.node_id
+            if self.table_id is not None:
+                flow_rule_dict['table_id'] = self.table_id
         return flow_rule_dict
           
     def changePortOfFlowRule(self, old_port_id, new_port_id):
