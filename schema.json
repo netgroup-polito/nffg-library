@@ -301,6 +301,7 @@
                 "enum": [
                   "internal",
                   "interface",
+                  "interface-out",
                   "gre-tunnel",
                   "vlan"
                 ]
@@ -318,6 +319,9 @@
                 "$ref": "#/definitions/internal"
               },
               "interface": {
+                "$ref": "#/definitions/interface"
+              },
+              "interface-out": {
                 "$ref": "#/definitions/interface"
               },
               "gre-tunnel": {

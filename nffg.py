@@ -1194,7 +1194,7 @@ class EndPoint(object):
             self.db_id = end_point_dict['db_id']
         if 'type' in end_point_dict:
             self.type = end_point_dict['type']
-            if self.type == 'interface':
+            if self.type == 'interface' or self.type == 'interface-out':
                 self.interface = end_point_dict[self.type]['if-name']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
