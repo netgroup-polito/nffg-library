@@ -306,15 +306,6 @@
                   "vlan"
                 ]
               },
-              "remote_endpoint_id": {
-                "type": "string"
-              },
-              "prepare_connection_to_remote_endpoint_ids": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
               "internal": {
                 "$ref": "#/definitions/internal"
               },

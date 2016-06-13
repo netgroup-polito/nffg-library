@@ -1121,8 +1121,7 @@ class EndPoint(object):
                  gre_key = None, ttl = None, secure_gre = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, internal_group = None,
-                 prepare_connection_to_remote_endpoint_id = None,
-                 prepare_connection_to_remote_endpoint_ids = None, domain = None, remote_domain = None):
+                 domain = None, remote_domain = None):
         '''
         Parameters
         ----------
@@ -1132,19 +1131,6 @@ class EndPoint(object):
            Name of the end-point.
         _type : string
            Type of the end-point, it could be 'internal', 'interface', 'interface_out', 'gre_tunnel', 'vlan'.
-        remote_endpoint_id : string
-           Identify the remote end-point where this end-point will be connected.
-           The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
-           It is an optional field.
-        prepare_connection_to_remote_endpoint_ids : string
-            Identify the remote end-points where this end-point will be connected.
-           The layout of the string will be: 'id-remote-graph:id-remote-endpoint'.
-           It is an optional field. Unlike the field  remote_endpoint_id, the field
-           prepare_connection_to_remote_endpoint_ids does not trigger an attach operation
-           but only prepare the graph for a forthcoming connection.
-        prepare_connection_to_remote_endpoint_id : string
-            Is a field for the auto-generate 1 to 1 end-point (in the end-point switch model), and identifies
-            the remote end-points where this end-point will be connected.
         node_id : string
            Optional field. Its meaning depends on the value of field _type
         interface : string
@@ -1161,7 +1147,6 @@ class EndPoint(object):
         self.id = _id
         self.name = name
         self.type = _type
-        self.remote_endpoint_id = remote_endpoint_id
         self.node_id = node_id
         self.interface = interface
         self.remote_ip = remote_ip
@@ -1175,8 +1160,6 @@ class EndPoint(object):
         self.internal_group = internal_group
         self.internal_id = internal_id
         self.interface_internal_id = interface_internal_id
-        self.prepare_connection_to_remote_endpoint_id = prepare_connection_to_remote_endpoint_id
-        self.prepare_connection_to_remote_endpoint_ids = prepare_connection_to_remote_endpoint_ids or []
         self.domain = domain
         self.remote_domain = remote_domain      
         
@@ -1186,10 +1169,6 @@ class EndPoint(object):
             self.name = end_point_dict['name']
         if 'domain' in end_point_dict:
             self.domain = end_point_dict['domain']            
-        if 'remote_endpoint_id' in end_point_dict:
-            self.remote_endpoint_id = end_point_dict['remote_endpoint_id']
-        if 'prepare_connection_to_remote_endpoint_ids' in end_point_dict:
-            self.prepare_connection_to_remote_endpoint_ids = end_point_dict['prepare_connection_to_remote_endpoint_ids']
         if 'db_id' in end_point_dict:
             self.db_id = end_point_dict['db_id']
         if 'type' in end_point_dict:
@@ -1220,12 +1199,6 @@ class EndPoint(object):
             end_point_dict['id'] = self.id
         if self.name is not None:
             end_point_dict['name'] = self.name
-        if self.remote_endpoint_id is not None:
-            end_point_dict['remote_endpoint_id'] = self.remote_endpoint_id  
-        if self.prepare_connection_to_remote_endpoint_ids:
-            end_point_dict['prepare_connection_to_remote_endpoint_ids'] = self.prepare_connection_to_remote_endpoint_ids 
-        if self.prepare_connection_to_remote_endpoint_id is not None:
-            end_point_dict['prepare_connection_to_remote_endpoint_id'] = self.prepare_connection_to_remote_endpoint_id 
         if self.type is not None:
             end_point_dict['type'] = self.type
             if self.type != 'shadow':
