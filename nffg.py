@@ -1192,6 +1192,8 @@ class EndPoint(object):
                     self.node_id = end_point_dict[self.type]['node-id']
             elif self.type == 'internal':
                 self.internal_group = end_point_dict[self.type]['internal-group']
+                if 'node-id' in end_point_dict[self.type]:
+                    self.node_id = end_point_dict[self.type]['node-id']
          
     def getDict(self, extended = False, domain = False):
         end_point_dict = {}

@@ -48,6 +48,9 @@
       "properties": {
         "internal-group": {
           "type": "string"
+        },
+        "node-id": {
+          "type": "string"
         }
       },
       "required": [
