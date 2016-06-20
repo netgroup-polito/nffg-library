@@ -424,9 +424,8 @@ class NF_FG(object):
             endpoint_found = False
             for new_endpoint in nffg_new.end_points:
                 if old_endpoint.id == new_endpoint.id and old_endpoint.type == new_endpoint.type\
-                 and old_endpoint.vlan_id == new_endpoint.vlan_id and old_endpoint.remote_endpoint_id == new_endpoint.remote_endpoint_id\
-                 and old_endpoint.node_id == new_endpoint.node_id and old_endpoint.interface == new_endpoint.interface\
-                 and old_endpoint.remote_ip == new_endpoint.remote_ip\
+                 and old_endpoint.vlan_id == new_endpoint.vlan_id and old_endpoint.node_id == new_endpoint.node_id\
+                 and old_endpoint.interface == new_endpoint.interface and old_endpoint.remote_ip == new_endpoint.remote_ip\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
                  and old_endpoint.local_ip == new_endpoint.local_ip and old_endpoint.ttl == new_endpoint.ttl\
                  and old_endpoint.gre_key == new_endpoint.gre_key and old_endpoint.internal_group == new_endpoint.internal_group:
