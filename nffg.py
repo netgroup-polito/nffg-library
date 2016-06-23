@@ -1111,8 +1111,7 @@ class UnifyControl(object):
 
 class EndPoint(object):
     def __init__(self, _id = None, name = None, _type = None, 
-                 remote_endpoint_id = None, node_id = None,
-                 interface = None, remote_ip = None, local_ip = None,
+                 node_id = None, interface = None, remote_ip = None, local_ip = None,
                  gre_key = None, ttl = None, secure_gre = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, internal_group = None,
@@ -1409,6 +1408,19 @@ class Match(object):
             if self.db_id is not None:
                 match_dict['db_id'] = self.db_id
         return match_dict
+
+    def isComplex(self):
+        '''
+        Checks if this match is complex (it has other fields set in addition to 'port_in')
+        '''
+        if self.ether_type is not None or self.vlan_id is not None or self.vlan_priority is not None\
+         or self.source_mac is not None or self.dest_mac is not None or self.source_ip is not None\
+         or self.dest_ip is not None or self.tos_bits is not None or self.source_port is not None\
+         or self.dest_port is not None or self.protocol is not None or self.arp_spa is not None\
+         or self.arp_spa is not None:
+            return True
+        else:
+            return False
 
 class Action(object):
     def __init__(self, output = None, controller = False, drop=False, set_vlan_id = None,
