@@ -1052,10 +1052,11 @@ class VNF(object):
         return max_relative_id
         
 class Port(object):
-    def __init__(self, _id = None, name = None, _type = None, status = None, db_id = None, mac = None, unify_ip = None, internal_id = None):
+    def __init__(self, _id = None, name = None, _type = None, status = None, db_id = None, mac = None, trusted=None,  unify_ip = None, internal_id = None):
         self.id = _id
         self.name = name
         self.mac = mac
+        self.trusted = trusted
         self.unify_ip = unify_ip        
         self.type = _type
         self.status = status
@@ -1068,6 +1069,8 @@ class Port(object):
             self.name = port_dict['name']
         if 'mac' in port_dict:
             self.mac = port_dict['mac']
+        if 'trusted' in port_dict:
+            self.trusted = port_dict['trusted']            
         if 'unify-ip' in port_dict:
             self.unify_ip = port_dict['unify-ip']                        
         
@@ -1079,6 +1082,8 @@ class Port(object):
             port_dict['name'] = self.name
         if self.mac is not None:
             port_dict['mac'] = self.mac
+        if self.trusted is not None:
+            port_dict['trusted'] = self.trusted            
         if self.unify_ip is not None:
             port_dict['unify-ip'] = self.unify_ip            
         if extended is True:

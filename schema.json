@@ -232,6 +232,9 @@
                     },
                     "unify-ip": {
                       "type": "string"
+                    },
+                    "trusted": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
