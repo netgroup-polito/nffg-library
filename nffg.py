@@ -1120,7 +1120,7 @@ class EndPoint(object):
                  gre_key = None, ttl = None, secure_gre = None,
                  status = None, db_id = None, internal_id = None, vlan_id = None, 
                  interface_internal_id = None, internal_group = None,
-                 domain = None, remote_domain = None):
+                 domain = None, remote_domain = None, configuration = None, ipv4 = None):
         '''
         Parameters
         ----------
@@ -1160,7 +1160,9 @@ class EndPoint(object):
         self.internal_id = internal_id
         self.interface_internal_id = interface_internal_id
         self.domain = domain
-        self.remote_domain = remote_domain      
+        self.remote_domain = remote_domain
+        self.configuration = configuration
+        self.ipv4 = ipv4
         
     def parseDict(self, end_point_dict):
         self.id = end_point_dict['id']
@@ -1193,6 +1195,10 @@ class EndPoint(object):
                 self.internal_group = end_point_dict[self.type]['internal-group']
                 if 'node-id' in end_point_dict[self.type]:
                     self.node_id = end_point_dict[self.type]['node-id']
+            elif self.type == 'host-stack':
+                self.configuration = end_point_dict[self.type]['configuration']
+                if 'IPv4' in end_point_dict[self.type]:
+                    self.ipv4 = end_point_dict[self.type]['IPv4']
          
     def getDict(self, extended = False, domain = False):
         end_point_dict = {}
@@ -1222,6 +1228,10 @@ class EndPoint(object):
                     end_point_dict[self.type]['vlan-id'] = self.vlan_id
                 if self.internal_group is not None:
                     end_point_dict[self.type]['internal-group'] = self.internal_group
+                if self.configuration is not None:
+                    end_point_dict[self.type]['configuration'] = self.configuration
+                if self.ipv4 is not None:
+                    end_point_dict[self.type]['IPv4'] = self.ipv4
         if extended is True:
             if self.status is not None:
                 end_point_dict['status'] = self.status 

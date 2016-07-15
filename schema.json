@@ -43,6 +43,25 @@
       ],
       "additionalProperties": false
     },
+    "host-stack": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "enum": [
+            "DHCP",
+            "static",
+            "pppoe"
+          ]
+        },
+        "IPv4": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "configuration"
+      ],
+      "additionalProperties": false
+    },
     "internal": {
       "type": "object",
       "properties": {
@@ -305,12 +324,16 @@
               },
               "type": {
                 "enum": [
+                  "host-stack",
                   "internal",
                   "interface",
                   "interface-out",
                   "gre-tunnel",
                   "vlan"
                 ]
+              },
+              "host-stack": {
+                "$ref": "#/definitions/host-stack"
               },
               "internal": {
                 "$ref": "#/definitions/internal"
