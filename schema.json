@@ -302,6 +302,7 @@
             },
             "required": [
               "id",
+              "vnf_template",
               "ports"
             ],
             "additionalProperties": false
