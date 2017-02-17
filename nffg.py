@@ -7,11 +7,31 @@ Created on Oct 14, 2015
 import sys, uuid, json, copy, collections
 from .exception import InexistentLabelFound, WrongNumberOfPorts
 
+
 class NF_FG(object):
     def __init__(self, _id = None, name = None,
                  vnfs = None, end_points = None,
                  flow_rules = None, description = None, 
                  domain = None, unify_monitoring = None):
+        """
+
+        :param _id:
+        :param name:
+        :param vnfs:
+        :param end_points:
+        :param flow_rules:
+        :param description:
+        :param domain:
+        :param unify_monitoring:
+        :type _id:
+        :type name: str
+        :type vnfs: list of VNF
+        :type end_points: list of EndPoint
+        :type flow_rules: list of FlowRule
+        :type description:
+        :type domain: str
+        :type unify_monitoring:
+        """
         self.id = _id
         self.name = name
         self.description = description
