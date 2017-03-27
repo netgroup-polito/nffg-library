@@ -9,10 +9,8 @@ from .exception import InexistentLabelFound, WrongNumberOfPorts
 
 
 class NF_FG(object):
-    def __init__(self, _id = None, name = None,
-                 vnfs = None, end_points = None,
-                 flow_rules = None, description = None, 
-                 domain = None, unify_monitoring = None):
+    def __init__(self, _id=None, name=None, vnfs=None, end_points=None, flow_rules=None, description=None, domain=None,
+                 unify_monitoring=None):
         """
 
         :param _id:
@@ -40,6 +38,7 @@ class NF_FG(object):
         self.flow_rules = flow_rules or []
         self.domain = domain
         self.unify_monitoring = unify_monitoring
+        self.db_id = None
     
     def parseDict(self, nffg_dict):
         self.id = nffg_dict['forwarding-graph']['id']
