@@ -229,6 +229,9 @@
               "name": {
                 "type": "string"
               },
+              "functional-capability": {
+                "type": "string"
+              },
               "vnf_template": {
                 "type": "string"
               },

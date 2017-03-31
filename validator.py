@@ -12,6 +12,7 @@ from jsonschema import validate, ValidationError
 
 from .exception import NF_FGValidationError
 
+
 class ValidateNF_FG(object):
     '''
     classdocs
@@ -27,6 +28,6 @@ class ValidateNF_FG(object):
             raise NF_FGValidationError(err.message)
         
     def get_schema(self):
-        base_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
+        base_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
         fd = open(base_folder+'/'+self.schema_name, 'r')
         return json.loads(fd.read())
