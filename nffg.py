@@ -1335,6 +1335,31 @@ class FlowRule(object):
                  match=None, actions=None, status=None,
                  db_id=None, internal_id=None, _type=None,
                  node_id=None, table_id=None, description=None):
+        """
+        
+        :param _id: 
+        :param priority: 
+        :param match: 
+        :param actions: 
+        :param status: 
+        :param db_id: 
+        :param internal_id: 
+        :param _type: 
+        :param node_id: 
+        :param table_id: 
+        :param description:
+        :type _id: 
+        :type priority: 
+        :type match: Match
+        :type actions: list of Action
+        :type status: 
+        :type db_id: 
+        :type internal_id: 
+        :type _type: 
+        :type node_id: 
+        :type table_id: 
+        :type description: 
+        """
         self.id = _id
         self.description = description
         self.priority = priority
