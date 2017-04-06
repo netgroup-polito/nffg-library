@@ -401,9 +401,6 @@
           ]
         }
       },
-      "required": [
-        "id"
-      ],
       "additionalProperties": false
     }
   },
