@@ -197,6 +197,10 @@
         }
       },
       "additionalProperties": false
+    },
+    "gui-position":{
+        "x": "string",
+        "y": "string"
     }
   },
   "properties": {
@@ -238,6 +242,10 @@
               "domain": {
                 "type": "string"
               },
+            "gui-position":{
+                "x": "string",
+                "y": "string"
+            },
               "ports": {
                 "type": "array",
                 "items": {
@@ -257,6 +265,10 @@
                     },
                     "trusted": {
                       "type": "boolean"
+                    },
+                    "gui-position":{
+                        "x": "string",
+                        "y": "string"
                     }
                   },
                   "required": [
@@ -324,6 +336,10 @@
               },
               "domain": {
                 "type": "string"
+              },
+              "gui-position":{
+                "x": "string",
+                "y": "string"
               },
               "type": {
                 "enum": [
