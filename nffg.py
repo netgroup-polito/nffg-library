@@ -111,8 +111,11 @@ class NF_FG(object):
             ep.id = ep.id.replace(':', '.')
         for flow_rule in self.flow_rules:
             port_in = flow_rule.match.port_in
-            if port_in is not None and port_in.split(':')[0] == "endpoint":
+            if port_in is not None and port_in.split(':')[0] == 'endpoint':
                 flow_rule.match.port_in = port_in.split(':')[0]+':'+port_in.split(':', 1)[1].replace(':', '.')
+            for action in flow_rule.actions:
+                if action.output is not None and action.output.split(':')[0] == 'endpoint':
+                    action.output = action.output.split(':')[0]+':'+action.output.split(':', 1)[1].replace(':', '.')
 
     def getVNF(self, vnf_id):
         for vnf in self.vnfs:
