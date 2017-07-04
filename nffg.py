@@ -1015,9 +1015,7 @@ class VNF(object):
         self.id = vnf_dict['id']
         if 'name' in vnf_dict:
             self.name = vnf_dict['name']
-        if 'functional-capability' in vnf_dict:
-            self.functional_capability = vnf_dict['functional-capability']
-            self.name = vnf_dict['name']
+        self.functional_capability = vnf_dict['functional-capability']
         if 'vnf_template' in vnf_dict:
             self.vnf_template_location = vnf_dict['vnf_template']
         for port_dict in vnf_dict['ports']:
