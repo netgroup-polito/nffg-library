@@ -317,6 +317,7 @@
             },
             "required": [
               "id",
+              "functional-capability",
               "ports"
             ],
             "additionalProperties": false
