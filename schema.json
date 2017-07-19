@@ -315,9 +315,12 @@
                 "type": "array"
               }
             },
+            "oneOf":[
+              {"required":["functional-capability"]},
+              {"required":["vnf_template"]}
+            ],
             "required": [
               "id",
-              "functional-capability",
               "ports"
             ],
             "additionalProperties": false
