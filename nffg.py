@@ -44,8 +44,7 @@ class NF_FG(object):
         self.db_id = None
     
     def parseDict(self, nffg_dict):
-        if 'id' in nffg_dict['forwarding-graph']:
-            self.id = nffg_dict['forwarding-graph']['id']
+
         if 'domain' in nffg_dict['forwarding-graph']:
             self.domain = nffg_dict['forwarding-graph']['domain']
         if 'unify-monitoring' in nffg_dict['forwarding-graph']:
@@ -74,8 +73,6 @@ class NF_FG(object):
     def getDict(self, extended=False, domain=False):
         nffg_dict = dict()
         nffg_dict['forwarding-graph'] = dict()
-        if self.id is not None:
-            nffg_dict['forwarding-graph']['id'] = self.id 
         if self.name is not None:
             nffg_dict['forwarding-graph']['name'] = self.name
         if self.description is not None:
